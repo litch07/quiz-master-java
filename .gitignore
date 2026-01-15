@@ -1,0 +1,22 @@
+# Compiled output
+*.class
+*.jar
+*.war
+*.ear
+*.jmod
+out/
+bin/
+target/
+build/
+
+# IDE
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
