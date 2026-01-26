@@ -350,7 +350,7 @@ This project is provided for educational purposes as part of the Object-Oriented
 
 ## Author
 
-Created as a course project for OOP Lab at United International University.
+Sadid Ahmed
 
 ---
 
