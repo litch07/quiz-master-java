@@ -4,15 +4,16 @@
 [![Swing](https://img.shields.io/badge/GUI-Swing-007396?style=for-the-badge&logo=java&logoColor=white)](https://docs.oracle.com/javase/tutorial/uiswing/)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
-A professional quiz application built with **Java Swing** for the Object-Oriented Programming Lab at United International University. Create questions, run quizzes, and track results with clean, consistent UI.
+A professional quiz application built with **Java Swing** for the Object-Oriented Programming Lab at United International University. Create questions, run quizzes, and track results with a clean, consistent UI.
 
 ## Features
 
 - Interactive quiz flow with real-time score and progress
-- Question manager with validation (password protected)
 - Student identity capture (name + ID)
 - Configurable max attempts per student
-- Results, statistics, and leaderboard view
+- Results window with statistics, recent results, and leaderboard tabs
+- Question manager with validation (password protected)
+- Reset Data option to clear attempts and results
 
 ## Tech Stack
 
@@ -51,7 +52,8 @@ Run `run.bat` on Windows or `run.sh` on macOS/Linux. Java 8+ is required.
 
 - Default teacher password: `admin`
 - Teacher can set max attempts in **Settings** (0 = no trials)
-- **Reset Data** clears attempts, results, and statistics
+- **Results** opens a window with tabs for Statistics, Recent Results, and Leaderboard
+- **Reset Data** clears attempts, results, and statistics (and resets max attempts to 1)
 
 ## Question File Format
 
