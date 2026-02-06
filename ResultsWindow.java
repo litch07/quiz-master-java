@@ -1,9 +1,15 @@
-import javax.swing.*;
+﻿import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.io.File;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Scanner;
+import java.util.Locale;
 
 public class ResultsWindow extends JFrame {
+    private static final String STATS_FILE = "stats.txt";
+
     public ResultsWindow(ArrayList<Questions> questions, int correctAnswers) {
         setTitle("Quiz Results");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -39,6 +45,7 @@ public class ResultsWindow extends JFrame {
         // Score display
         int totalQuestions = questions.size();
         double percentage = (correctAnswers * 100.0) / totalQuestions;
+        updateStats(totalQuestions, correctAnswers, percentage);
 
         JPanel scorePanel = new JPanel();
         scorePanel.setOpaque(false);
@@ -132,4 +139,46 @@ public class ResultsWindow extends JFrame {
         add(mainPanel);
         setVisible(true);
     }
+
+    private void updateStats(int totalQuestions, int correctAnswers, double percentage) {
+        int totalQuizzes = 0;
+        int totalCorrect = 0;
+        int totalQuestionsAll = 0;
+        double bestPercent = 0.0;
+
+        File file = new File(STATS_FILE);
+        if (file.exists()) {
+            try (Scanner sc = new Scanner(file)) {
+                totalQuizzes = sc.nextInt();
+                totalCorrect = sc.nextInt();
+                totalQuestionsAll = sc.nextInt();
+                bestPercent = sc.nextDouble();
+                sc.nextDouble();
+                sc.nextInt();
+                sc.nextInt();
+            } catch (Exception e) {
+                totalQuizzes = 0;
+                totalCorrect = 0;
+                totalQuestionsAll = 0;
+                bestPercent = 0.0;
+            }
+        }
+
+        totalQuizzes += 1;
+        totalCorrect += correctAnswers;
+        totalQuestionsAll += totalQuestions;
+        if (percentage > bestPercent) {
+            bestPercent = percentage;
+        }
+
+        try (PrintWriter out = new PrintWriter(STATS_FILE)) {
+            out.println(totalQuizzes + " " + totalCorrect + " " + totalQuestionsAll + " " +
+                    String.format(Locale.US, "%.4f", bestPercent) + " " +
+                    String.format(Locale.US, "%.4f", percentage) + " " +
+                    correctAnswers + " " + totalQuestions);
+        } catch (Exception e) {
+            System.out.println("Warning: Could not save statistics.");
+        }
+    }
 }
+
