@@ -1,4 +1,4 @@
-import javax.swing.*;
+﻿import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.io.FileWriter;
@@ -6,15 +6,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class QuestionManager extends JFrame {
-    private ArrayList<Questions> questions;
-    private Dashboard dashboard;
-    private JPanel questionsPanel;
+    private ArrayList<Questions> questions;    private JPanel questionsPanel;
     private JScrollPane scrollPane;
 
     public QuestionManager(Dashboard dashboard, ArrayList<Questions> questions) {
         this.questions = questions;
-        this.dashboard = dashboard;
-
         setTitle("Question Manager");
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setSize(800, 600);
@@ -287,3 +283,4 @@ public class QuestionManager extends JFrame {
         }
     }
 }
+

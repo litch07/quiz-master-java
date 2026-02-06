@@ -1,4 +1,4 @@
-import javax.swing.*;
+﻿import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.io.File;
@@ -208,9 +208,7 @@ public class StartQuiz extends JFrame {
         return 0;
     }
 
-    private static class Settings {
-        String password;
-        int maxTrials;
+    private static class Settings {        int maxTrials;
     }
 
     private static class StudentIdentity {
@@ -223,3 +221,4 @@ public class StartQuiz extends JFrame {
         }
     }
 }
+
