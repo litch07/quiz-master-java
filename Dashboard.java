@@ -83,19 +83,9 @@ public class Dashboard extends JFrame {
         actionsPanel.add(manageButton);
         actionsPanel.add(Box.createVerticalStrut(12));
 
-        JButton statsButton = createStyledButton("View Statistics", new Color(14, 116, 144));
-        statsButton.addActionListener(e -> showStatsDialog());
-        actionsPanel.add(statsButton);
-        actionsPanel.add(Box.createVerticalStrut(12));
-
-        JButton recentButton = createStyledButton("Recent Results", new Color(59, 130, 246));
-        recentButton.addActionListener(e -> showRecentResults());
-        actionsPanel.add(recentButton);
-        actionsPanel.add(Box.createVerticalStrut(12));
-
-        JButton leaderboardButton = createStyledButton("Leaderboard", new Color(16, 185, 129));
-        leaderboardButton.addActionListener(e -> showLeaderboard());
-        actionsPanel.add(leaderboardButton);
+        JButton resultsButton = createStyledButton("Results", new Color(14, 116, 144));
+        resultsButton.addActionListener(e -> showResultsWindow());
+        actionsPanel.add(resultsButton);
         actionsPanel.add(Box.createVerticalStrut(12));
 
         JButton settingsButton = createStyledButton("Settings", new Color(71, 85, 105));
@@ -142,71 +132,20 @@ public class Dashboard extends JFrame {
         return button;
     }
 
-    private void showStatsDialog() {
-        Stats stats = loadStats();
-        if (stats == null || stats.totalQuizzes == 0) {
-            JOptionPane.showMessageDialog(this,
-                    "No quiz statistics yet. Complete a quiz to see results.",
-                    "Statistics", JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
-
-        double average = stats.totalQuestions == 0 ? 0.0
-                : (stats.totalCorrect * 100.0) / stats.totalQuestions;
-
-        String lastName = (stats.lastName == null || stats.lastName.isEmpty()) ? "Unknown" : stats.lastName;
-        String lastId = (stats.lastId == null || stats.lastId.isEmpty()) ? "N/A" : stats.lastId;
-        String bestName = (stats.bestName == null || stats.bestName.isEmpty()) ? "Unknown" : stats.bestName;
-        String bestId = (stats.bestId == null || stats.bestId.isEmpty()) ? "N/A" : stats.bestId;
-
-        String message = "Total Quizzes: " + stats.totalQuizzes + "\n" +
-                "Last: " + lastName + " (" + lastId + ") - " + stats.lastCorrect + "/" + stats.lastTotal +
-                String.format(" (%.1f%%)\n", stats.lastPercent) +
-                String.format("Best: %s (%s) - %.1f%%\n", bestName, bestId, stats.bestPercent) +
-                String.format("Average Score: %.1f%%", average);
-
-        JOptionPane.showMessageDialog(this, message, "Statistics", JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    private void showRecentResults() {
-        List<String> results = readRecentResults(20);
-        showListDialog("Recent Results", results,
-                "No results yet. Complete a quiz to see results.");
-    }
-
-    private void showLeaderboard() {
-        List<String> leaderboard = buildLeaderboard(20);
-        showListDialog("Leaderboard", leaderboard,
-                "No scores yet. Complete a quiz to populate the leaderboard.");
-    }
-
-    private void showListDialog(String title, List<String> lines, String emptyMessage) {
-        JDialog dialog = new JDialog(this, title, true);
-        dialog.setSize(520, 420);
+    private void showResultsWindow() {
+        JDialog dialog = new JDialog(this, "Results", true);
+        dialog.setSize(700, 520);
         dialog.setLocationRelativeTo(this);
 
         JPanel panel = new JPanel();
-        panel.setLayout(new BorderLayout(10, 10));
+        panel.setLayout(new BorderLayout(12, 12));
         panel.setBorder(new EmptyBorder(12, 12, 12, 12));
 
-        if (lines.isEmpty()) {
-            JLabel label = new JLabel(emptyMessage);
-            label.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-            label.setForeground(new Color(100, 116, 139));
-            panel.add(label, BorderLayout.CENTER);
-        } else {
-            DefaultListModel<String> model = new DefaultListModel<>();
-            for (String line : lines) {
-                model.addElement(line);
-            }
-            JList<String> list = new JList<>(model);
-            list.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-            list.setBackground(new Color(248, 250, 252));
-            list.setBorder(new EmptyBorder(8, 8, 8, 8));
-
-            JScrollPane scrollPane = new JScrollPane(list);
-            panel.add(scrollPane, BorderLayout.CENTER);
-        }
+        JTabbedPane tabs = new JTabbedPane();
+        tabs.addTab("Statistics", buildStatsPanel());
+        tabs.addTab("Recent Results", buildRecentResultsPanel());
+        tabs.addTab("Leaderboard", buildLeaderboardPanel());
+        panel.add(tabs, BorderLayout.CENTER);
 
         JButton closeButton = new JButton("Close");
         closeButton.setFont(new Font("Segoe UI", Font.BOLD, 12));
@@ -223,6 +162,94 @@ public class Dashboard extends JFrame {
 
         dialog.add(panel);
         dialog.setVisible(true);
+    }
+
+    private JPanel buildStatsPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        Stats stats = loadStats();
+        if (stats == null || stats.totalQuizzes == 0) {
+            JLabel label = new JLabel("No quiz statistics yet. Complete a quiz to see results.");
+            label.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+            label.setForeground(new Color(100, 116, 139));
+            panel.add(label);
+            return panel;
+        }
+
+        double average = stats.totalQuestions == 0 ? 0.0
+                : (stats.totalCorrect * 100.0) / stats.totalQuestions;
+
+        String lastName = (stats.lastName == null || stats.lastName.isEmpty()) ? "Unknown" : stats.lastName;
+        String lastId = (stats.lastId == null || stats.lastId.isEmpty()) ? "N/A" : stats.lastId;
+        String bestName = (stats.bestName == null || stats.bestName.isEmpty()) ? "Unknown" : stats.bestName;
+        String bestId = (stats.bestId == null || stats.bestId.isEmpty()) ? "N/A" : stats.bestId;
+
+        panel.add(makeStatLine("Total Quizzes", String.valueOf(stats.totalQuizzes)));
+        panel.add(makeStatLine("Average Score", String.format("%.1f%%", average)));
+        panel.add(makeStatLine("Last Result", lastName + " (" + lastId + ") - " +
+                stats.lastCorrect + "/" + stats.lastTotal +
+                String.format(" (%.1f%%)", stats.lastPercent)));
+        panel.add(makeStatLine("Best Result", bestName + " (" + bestId + ") - " +
+                String.format("%.1f%%", stats.bestPercent)));
+
+        return panel;
+    }
+
+    private JPanel buildRecentResultsPanel() {
+        List<String> results = readRecentResults(20);
+        return buildListPanel(results, "No results yet. Complete a quiz to see results.");
+    }
+
+    private JPanel buildLeaderboardPanel() {
+        List<String> leaderboard = buildLeaderboard(20);
+        return buildListPanel(leaderboard, "No scores yet. Complete a quiz to populate the leaderboard.");
+    }
+
+    private JPanel buildListPanel(List<String> lines, String emptyMessage) {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(new EmptyBorder(8, 8, 8, 8));
+
+        if (lines.isEmpty()) {
+            JLabel label = new JLabel(emptyMessage);
+            label.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+            label.setForeground(new Color(100, 116, 139));
+            panel.add(label, BorderLayout.CENTER);
+            return panel;
+        }
+
+        DefaultListModel<String> model = new DefaultListModel<>();
+        for (String line : lines) {
+            model.addElement(line);
+        }
+        JList<String> list = new JList<>(model);
+        list.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        list.setBackground(new Color(248, 250, 252));
+        list.setBorder(new EmptyBorder(8, 8, 8, 8));
+
+        JScrollPane scrollPane = new JScrollPane(list);
+        panel.add(scrollPane, BorderLayout.CENTER);
+
+        return panel;
+    }
+
+    private JPanel makeStatLine(String label, String value) {
+        JPanel line = new JPanel(new BorderLayout(10, 0));
+        line.setOpaque(false);
+        line.setBorder(new EmptyBorder(6, 2, 6, 2));
+
+        JLabel left = new JLabel(label);
+        left.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        left.setForeground(new Color(30, 41, 59));
+
+        JLabel right = new JLabel(value);
+        right.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        right.setForeground(new Color(51, 65, 85));
+
+        line.add(left, BorderLayout.WEST);
+        line.add(right, BorderLayout.EAST);
+        return line;
     }
 
     private boolean verifyPassword() {
