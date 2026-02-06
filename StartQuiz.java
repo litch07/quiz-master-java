@@ -1,4 +1,4 @@
-﻿import javax.swing.*;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.io.File;
@@ -165,18 +165,14 @@ public class StartQuiz extends JFrame {
 
     private Settings loadSettings() {
         File file = new File(SETTINGS_FILE);
-        Settings settings = new Settings();
-        settings.password = "admin";
-        settings.maxTrials = 1;
+        Settings settings = new Settings();        settings.maxTrials = 1;
 
         if (!file.exists()) {
             return settings;
         }
 
         try (Scanner sc = new Scanner(file)) {
-            if (sc.hasNextLine()) {
-                settings.password = sc.nextLine().trim();
-            }
+            if (sc.hasNextLine()) {            }
             if (sc.hasNextLine()) {
                 settings.maxTrials = Integer.parseInt(sc.nextLine().trim());
             }
@@ -208,7 +204,8 @@ public class StartQuiz extends JFrame {
         return 0;
     }
 
-    private static class Settings {        int maxTrials;
+    private static class Settings {
+        int maxTrials;
     }
 
     private static class StudentIdentity {
@@ -221,4 +218,5 @@ public class StartQuiz extends JFrame {
         }
     }
 }
+
 
