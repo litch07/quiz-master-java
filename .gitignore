@@ -9,6 +9,16 @@ bin/
 target/
 build/
 
+# Release artifacts
+*.zip
+dist/
+
+# App runtime data
+attempts.txt
+results.log
+settings.txt
+stats.txt
+
 # IDE
 .idea/
 *.iml
