@@ -1,4 +1,4 @@
-import javax.swing.*;
+﻿import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.util.ArrayList;
@@ -11,26 +11,16 @@ public class StartQuiz extends JFrame {
         setLocationRelativeTo(null);
         setResizable(false);
 
-        // Create main panel with gradient background
-        JPanel mainPanel = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2d = (Graphics2D) g;
-                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                GradientPaint gp = new GradientPaint(0, 0, new Color(25, 118, 210),
-                        0, getHeight(), new Color(13, 71, 161));
-                g2d.setPaint(gp);
-                g2d.fillRect(0, 0, getWidth(), getHeight());
-            }
-        };
+        // Create main panel with a neutral background
+        JPanel mainPanel = new JPanel();
+        mainPanel.setBackground(new Color(245, 247, 250));
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBorder(new EmptyBorder(60, 40, 60, 40));
 
         // Title
         JLabel titleLabel = new JLabel("Quiz Application");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 40));
-        titleLabel.setForeground(Color.WHITE);
+        titleLabel.setForeground(new Color(30, 41, 59));
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         mainPanel.add(titleLabel);
 
@@ -40,7 +30,8 @@ public class StartQuiz extends JFrame {
         JLabel descLabel = new JLabel("<html><center>Ready to test your knowledge?<br>You are about to answer " +
                 questions.size() + " questions.<br>Good luck!</center></html>");
         descLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        descLabel.setForeground(Color.WHITE);
+        descLabel.setForeground(new Color(51, 65, 85));
+        descLabel.setHorizontalAlignment(SwingConstants.CENTER);
         descLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         mainPanel.add(descLabel);
 
@@ -54,7 +45,7 @@ public class StartQuiz extends JFrame {
 
         JLabel detailLabel = new JLabel("Total Questions: " + questions.size());
         detailLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        detailLabel.setForeground(Color.WHITE);
+        detailLabel.setForeground(new Color(51, 65, 85));
         detailLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         detailsPanel.add(detailLabel);
 
@@ -62,7 +53,7 @@ public class StartQuiz extends JFrame {
 
         JLabel typeLabel = new JLabel("Multiple Choice (4 Options)");
         typeLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        typeLabel.setForeground(Color.WHITE);
+        typeLabel.setForeground(new Color(51, 65, 85));
         typeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         detailsPanel.add(typeLabel);
 
@@ -78,7 +69,7 @@ public class StartQuiz extends JFrame {
 
         JButton startButton = new JButton("Start Quiz");
         startButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        startButton.setBackground(new Color(76, 175, 80));
+        startButton.setBackground(new Color(37, 99, 235));
         startButton.setForeground(Color.WHITE);
         startButton.setBorder(BorderFactory.createEmptyBorder(12, 30, 12, 30));
         startButton.setFocusPainted(false);
@@ -94,7 +85,7 @@ public class StartQuiz extends JFrame {
 
         JButton cancelButton = new JButton("Cancel");
         cancelButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        cancelButton.setBackground(new Color(244, 67, 54));
+        cancelButton.setBackground(new Color(100, 116, 139));
         cancelButton.setForeground(Color.WHITE);
         cancelButton.setBorder(BorderFactory.createEmptyBorder(12, 30, 12, 30));
         cancelButton.setFocusPainted(false);
