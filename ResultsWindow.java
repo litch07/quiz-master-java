@@ -145,7 +145,9 @@ public class ResultsWindow extends JFrame {
             mainPanel.add(Box.createVerticalStrut(8));
             mainPanel.add(attemptsLabel);
 
-            if (remaining == 0) {\n                retakeButton.setVisible(false);\n            }
+            if (remaining == 0) {
+                retakeButton.setVisible(false);
+            }
         }
 
         add(mainPanel);
@@ -336,6 +338,7 @@ public class ResultsWindow extends JFrame {
         int lastTotal;
     }
 }
+
 
 
 
