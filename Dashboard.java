@@ -3,10 +3,6 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 
 public class Dashboard extends JFrame {
@@ -23,7 +19,7 @@ public class Dashboard extends JFrame {
 
         setTitle("Quiz Application - Dashboard");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(860, 560);
+        setSize(720, 520);
         setLocationRelativeTo(null);
         setResizable(false);
 
@@ -51,9 +47,6 @@ public class Dashboard extends JFrame {
         headerPanel.add(countLabel);
 
         mainPanel.add(headerPanel, BorderLayout.NORTH);
-
-        JPanel contentPanel = new JPanel(new GridLayout(1, 3, 20, 0));
-        contentPanel.setOpaque(false);
 
         JPanel actionsPanel = new JPanel();
         actionsPanel.setOpaque(false);
@@ -102,63 +95,7 @@ public class Dashboard extends JFrame {
         exitButton.addActionListener(e -> System.exit(0));
         actionsPanel.add(exitButton);
 
-        contentPanel.add(actionsPanel);
-
-        JPanel resultsPanel = new JPanel();
-        resultsPanel.setOpaque(false);
-        resultsPanel.setLayout(new BoxLayout(resultsPanel, BoxLayout.Y_AXIS));
-        resultsPanel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(new Color(203, 213, 225)),
-                "Recent Results"));
-
-        List<String> recentResults = readRecentResults(5);
-        if (recentResults.isEmpty()) {
-            JLabel emptyLabel = new JLabel("No results yet. Complete a quiz to see results here.");
-            emptyLabel.setFont(new Font("Segoe UI", Font.ITALIC, 13));
-            emptyLabel.setForeground(new Color(100, 116, 139));
-            emptyLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-            resultsPanel.add(emptyLabel);
-        } else {
-            for (String line : recentResults) {
-                JLabel lineLabel = new JLabel(line);
-                lineLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-                lineLabel.setForeground(new Color(51, 65, 85));
-                lineLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-                resultsPanel.add(lineLabel);
-                resultsPanel.add(Box.createVerticalStrut(8));
-            }
-        }
-
-        contentPanel.add(resultsPanel);
-
-        JPanel leaderboardPanel = new JPanel();
-        leaderboardPanel.setOpaque(false);
-        leaderboardPanel.setLayout(new BoxLayout(leaderboardPanel, BoxLayout.Y_AXIS));
-        leaderboardPanel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(new Color(203, 213, 225)),
-                "Leaderboard"));
-
-        List<String> leaderboard = buildLeaderboard(5);
-        if (leaderboard.isEmpty()) {
-            JLabel emptyLabel = new JLabel("No scores yet. Complete a quiz to populate the leaderboard.");
-            emptyLabel.setFont(new Font("Segoe UI", Font.ITALIC, 13));
-            emptyLabel.setForeground(new Color(100, 116, 139));
-            emptyLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-            leaderboardPanel.add(emptyLabel);
-        } else {
-            for (String line : leaderboard) {
-                JLabel lineLabel = new JLabel(line);
-                lineLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-                lineLabel.setForeground(new Color(51, 65, 85));
-                lineLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-                leaderboardPanel.add(lineLabel);
-                leaderboardPanel.add(Box.createVerticalStrut(8));
-            }
-        }
-
-        contentPanel.add(leaderboardPanel);
-
-        mainPanel.add(contentPanel, BorderLayout.CENTER);
+        mainPanel.add(actionsPanel, BorderLayout.CENTER);
 
         add(mainPanel);
         setVisible(true);
@@ -172,7 +109,7 @@ public class Dashboard extends JFrame {
         button.setBorder(BorderFactory.createEmptyBorder(12, 20, 12, 20));
         button.setFocusPainted(false);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        button.setMaximumSize(new Dimension(240, 44));
+        button.setMaximumSize(new Dimension(260, 44));
         button.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         button.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -313,7 +250,10 @@ public class Dashboard extends JFrame {
         if (file.exists()) {
             file.delete();
         }
-        JOptionPane.showMessageDialog(this, "Attempts reset successfully.",
+        Settings settings = loadSettings();
+        settings.maxTrials = 1;
+        saveSettings(settings);
+        JOptionPane.showMessageDialog(this, "Attempts reset. Max trials set to 1.",
                 "Reset Attempts", JOptionPane.INFORMATION_MESSAGE);
     }
 
@@ -321,7 +261,7 @@ public class Dashboard extends JFrame {
         File file = new File(SETTINGS_FILE);
         Settings settings = new Settings();
         settings.password = "admin";
-        settings.maxTrials = 0;
+        settings.maxTrials = 1;
 
         if (!file.exists()) {
             return settings;
@@ -349,83 +289,6 @@ public class Dashboard extends JFrame {
             JOptionPane.showMessageDialog(this, "Could not save settings.",
                     "Error", JOptionPane.ERROR_MESSAGE);
         }
-    }
-
-    private List<String> readRecentResults(int limit) {
-        File file = new File(RESULTS_FILE);
-        ArrayList<String> lines = new ArrayList<>();
-        if (!file.exists()) {
-            return lines;
-        }
-
-        try (Scanner sc = new Scanner(file)) {
-            while (sc.hasNextLine()) {
-                lines.add(sc.nextLine());
-            }
-        } catch (Exception e) {
-            return lines;
-        }
-
-        int start = Math.max(0, lines.size() - limit);
-        return lines.subList(start, lines.size());
-    }
-
-    private List<String> buildLeaderboard(int limit) {
-        File file = new File(RESULTS_FILE);
-        Map<String, LeaderEntry> bestByStudent = new HashMap<>();
-
-        if (file.exists()) {
-            try (Scanner sc = new Scanner(file)) {
-                while (sc.hasNextLine()) {
-                    String line = sc.nextLine();
-                    String[] parts = line.split("\\|");
-                    if (parts.length < 4) {
-                        continue;
-                    }
-                    String nameId = parts[1].trim();
-                    String percentPart = parts[3].trim();
-                    double percent;
-                    try {
-                        percent = Double.parseDouble(percentPart.replace("%", ""));
-                    } catch (NumberFormatException e) {
-                        continue;
-                    }
-
-                    String name = nameId;
-                    String id = "";
-                    int open = nameId.lastIndexOf('(');
-                    int close = nameId.lastIndexOf(')');
-                    if (open >= 0 && close > open) {
-                        name = nameId.substring(0, open).trim();
-                        id = nameId.substring(open + 1, close).trim();
-                    }
-
-                    String key = id.isEmpty() ? name : id;
-                    LeaderEntry existing = bestByStudent.get(key);
-                    if (existing == null || percent > existing.percent) {
-                        bestByStudent.put(key, new LeaderEntry(name, id, percent));
-                    }
-                }
-            } catch (Exception e) {
-                return new ArrayList<>();
-            }
-        }
-
-        ArrayList<LeaderEntry> entries = new ArrayList<>(bestByStudent.values());
-        entries.sort(Comparator.comparingDouble((LeaderEntry e) -> e.percent).reversed());
-
-        List<String> lines = new ArrayList<>();
-        int count = Math.min(limit, entries.size());
-        for (int i = 0; i < count; i++) {
-            LeaderEntry entry = entries.get(i);
-            String label = String.format("%d. %s (%s) - %.1f%%", i + 1,
-                    entry.name,
-                    entry.id.isEmpty() ? "N/A" : entry.id,
-                    entry.percent);
-            lines.add(label);
-        }
-
-        return lines;
     }
 
     private Stats loadStats() {
@@ -515,17 +378,4 @@ public class Dashboard extends JFrame {
         int lastCorrect;
         int lastTotal;
     }
-
-    private static class LeaderEntry {
-        String name;
-        String id;
-        double percent;
-
-        LeaderEntry(String name, String id, double percent) {
-            this.name = name;
-            this.id = id;
-            this.percent = percent;
-        }
-    }
 }
-

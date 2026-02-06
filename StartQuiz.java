@@ -159,7 +159,7 @@ public class StartQuiz extends JFrame {
         File file = new File(SETTINGS_FILE);
         Settings settings = new Settings();
         settings.password = "admin";
-        settings.maxTrials = 0;
+        settings.maxTrials = 1;
 
         if (!file.exists()) {
             return settings;
@@ -215,5 +215,6 @@ public class StartQuiz extends JFrame {
         }
     }
 }
+
 
 
