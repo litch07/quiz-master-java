@@ -1,4 +1,4 @@
-﻿import javax.swing.*;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.util.ArrayList;
@@ -9,11 +9,7 @@ public class MainWindow extends JFrame {
     private int currentIndex;
     private String playerName;
     private String studentId;
-    private JLabel questionLabel, progressLabel, scoreLabel;
-    private JRadioButton[] radioButtons;
-    private JButton nextButton, finishButton;
     private ButtonGroup buttonGroup;
-    private JProgressBar progressBar;
 
     public MainWindow(ArrayList<Questions> questions, int index, String playerName, String studentId) {
         this.questions = questions;
@@ -34,12 +30,12 @@ public class MainWindow extends JFrame {
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setOpaque(false);
 
-        progressLabel = new JLabel("Question " + (currentIndex + 1) + " of " + questions.size());
+        JLabel progressLabel = new JLabel("Question " + (currentIndex + 1) + " of " + questions.size());
         progressLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
         progressLabel.setForeground(new Color(30, 41, 59));
         headerPanel.add(progressLabel, BorderLayout.WEST);
 
-        scoreLabel = new JLabel("Correct: " + correct);
+        JLabel scoreLabel = new JLabel("Correct: " + correct);
         scoreLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
         scoreLabel.setForeground(new Color(37, 99, 235));
         headerPanel.add(scoreLabel, BorderLayout.EAST);
@@ -50,7 +46,7 @@ public class MainWindow extends JFrame {
         topPanel.add(headerPanel);
         topPanel.add(Box.createVerticalStrut(6));
 
-        progressBar = new JProgressBar(0, questions.size());
+        JProgressBar progressBar = new JProgressBar(0, questions.size());
         progressBar.setValue(currentIndex + 1);
         progressBar.setStringPainted(true);
         progressBar.setString((currentIndex + 1) + "/" + questions.size());
@@ -65,35 +61,34 @@ public class MainWindow extends JFrame {
         questionsPanel.setOpaque(false);
         questionsPanel.setBorder(new EmptyBorder(12, 6, 12, 6));
 
-        questionLabel = new JLabel("<html>" + questions.get(currentIndex).ques + "</html>");
+        JLabel questionLabel = new JLabel("<html>" + questions.get(currentIndex).ques + "</html>");
         questionLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
         questionLabel.setForeground(new Color(33, 33, 33));
         questionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         questionsPanel.add(questionLabel);
         questionsPanel.add(Box.createVerticalStrut(14));
 
-        radioButtons = new JRadioButton[4];
         buttonGroup = new ButtonGroup();
         Questions currentQuestion = questions.get(currentIndex);
 
         for (int i = 0; i < 4; i++) {
-            radioButtons[i] = new JRadioButton(currentQuestion.opt[i]);
-            radioButtons[i].setFont(new Font("Segoe UI", Font.PLAIN, 14));
-            radioButtons[i].setOpaque(false);
-            radioButtons[i].setForeground(new Color(51, 51, 51));
-            radioButtons[i].setActionCommand(currentQuestion.opt[i]);
-            radioButtons[i].setCursor(new Cursor(Cursor.HAND_CURSOR));
+            JRadioButton option = new JRadioButton(currentQuestion.opt[i]);
+            option.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+            option.setOpaque(false);
+            option.setForeground(new Color(51, 51, 51));
+            option.setActionCommand(currentQuestion.opt[i]);
+            option.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
             JPanel optionPanel = new JPanel(new BorderLayout());
             optionPanel.setBackground(Color.WHITE);
             optionPanel.setBorder(BorderFactory.createCompoundBorder(
                     BorderFactory.createLineBorder(new Color(226, 232, 240), 1),
                     new EmptyBorder(10, 12, 10, 12)));
-            optionPanel.add(radioButtons[i], BorderLayout.CENTER);
+            optionPanel.add(option, BorderLayout.CENTER);
             optionPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
             optionPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, optionPanel.getPreferredSize().height));
 
-            buttonGroup.add(radioButtons[i]);
+            buttonGroup.add(option);
             questionsPanel.add(optionPanel);
             questionsPanel.add(Box.createVerticalStrut(8));
         }
@@ -103,7 +98,7 @@ public class MainWindow extends JFrame {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 14, 0));
         buttonPanel.setOpaque(false);
 
-        nextButton = new JButton("Next Question");
+        JButton nextButton = new JButton("Next Question");
         nextButton.setFont(new Font("Segoe UI", Font.BOLD, 13));
         nextButton.setBackground(new Color(37, 99, 235));
         nextButton.setForeground(Color.WHITE);
@@ -112,9 +107,8 @@ public class MainWindow extends JFrame {
         nextButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         nextButton.setPreferredSize(new Dimension(150, 38));
         nextButton.addActionListener(e -> handleNextQuestion());
-        buttonPanel.add(nextButton);
 
-        finishButton = new JButton("Finish Quiz");
+        JButton finishButton = new JButton("Finish Quiz");
         finishButton.setFont(new Font("Segoe UI", Font.BOLD, 13));
         finishButton.setBackground(new Color(14, 116, 144));
         finishButton.setForeground(Color.WHITE);
@@ -126,10 +120,8 @@ public class MainWindow extends JFrame {
 
         if (currentIndex == questions.size() - 1) {
             buttonPanel.add(finishButton);
-            nextButton.setVisible(false);
         } else {
             buttonPanel.add(nextButton);
-            finishButton.setVisible(false);
         }
 
         JButton quitButton = new JButton("Quit");
@@ -193,4 +185,3 @@ public class MainWindow extends JFrame {
         dispose();
     }
 }
-
