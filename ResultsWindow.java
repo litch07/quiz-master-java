@@ -107,7 +107,7 @@ public class ResultsWindow extends JFrame {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 14, 0));
         buttonPanel.setOpaque(false);
 
-        JButton retakeButton = new JButton("Retake Quiz");
+        JButton retakeButton = new JButton("Try Again");
         retakeButton.setFont(new Font("Segoe UI", Font.BOLD, 13));
         retakeButton.setBackground(new Color(37, 99, 235));
         retakeButton.setForeground(Color.WHITE);
@@ -338,4 +338,5 @@ public class ResultsWindow extends JFrame {
         int lastTotal;
     }
 }
+
 
