@@ -101,10 +101,8 @@ public class ResultsWindow extends JFrame {
 
         mainPanel.add(Box.createVerticalStrut(30));
 
-        JPanel buttonPanel = new JPanel();
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 16, 0));
         buttonPanel.setOpaque(false);
-        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
-        buttonPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JButton retakeButton = new JButton("Retake Quiz");
         retakeButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -118,8 +116,6 @@ public class ResultsWindow extends JFrame {
             dispose();
         });
         buttonPanel.add(retakeButton);
-
-        buttonPanel.add(Box.createHorizontalStrut(16));
 
         JButton dashboardButton = new JButton("Go to Dashboard");
         dashboardButton.setFont(new Font("Segoe UI", Font.BOLD, 14));

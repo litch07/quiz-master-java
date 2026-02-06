@@ -12,14 +12,14 @@ public class StartQuiz extends JFrame {
     public StartQuiz(ArrayList<Questions> questions) {
         setTitle("Start Your Quiz");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(700, 520);
+        setSize(720, 520);
         setLocationRelativeTo(null);
         setResizable(false);
 
         JPanel mainPanel = new JPanel();
         mainPanel.setBackground(new Color(245, 247, 250));
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        mainPanel.setBorder(new EmptyBorder(60, 40, 60, 40));
+        mainPanel.setBorder(new EmptyBorder(40, 50, 40, 50));
 
         JLabel titleLabel = new JLabel("Quiz Application");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 40));
@@ -27,7 +27,7 @@ public class StartQuiz extends JFrame {
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         mainPanel.add(titleLabel);
 
-        mainPanel.add(Box.createVerticalStrut(30));
+        mainPanel.add(Box.createVerticalStrut(20));
 
         JLabel descLabel = new JLabel("<html><center>Ready to test your knowledge?<br>You are about to answer " +
                 questions.size() + " questions.<br>Good luck!</center></html>");
@@ -37,7 +37,7 @@ public class StartQuiz extends JFrame {
         descLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         mainPanel.add(descLabel);
 
-        mainPanel.add(Box.createVerticalStrut(40));
+        mainPanel.add(Box.createVerticalStrut(30));
 
         JPanel detailsPanel = new JPanel();
         detailsPanel.setOpaque(false);
@@ -50,7 +50,7 @@ public class StartQuiz extends JFrame {
         detailLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         detailsPanel.add(detailLabel);
 
-        detailsPanel.add(Box.createVerticalStrut(10));
+        detailsPanel.add(Box.createVerticalStrut(8));
 
         JLabel typeLabel = new JLabel("Multiple Choice (4 Options)");
         typeLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -60,7 +60,7 @@ public class StartQuiz extends JFrame {
 
         mainPanel.add(detailsPanel);
 
-        mainPanel.add(Box.createVerticalStrut(40));
+        mainPanel.add(Box.createVerticalStrut(30));
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.setOpaque(false);
@@ -98,7 +98,6 @@ public class StartQuiz extends JFrame {
                 return;
             }
 
-
             new MainWindow(questions, 0, identity.name, identity.studentId);
             dispose();
         });
@@ -131,6 +130,7 @@ public class StartQuiz extends JFrame {
         JTextField idField = new JTextField();
 
         JPanel panel = new JPanel(new GridLayout(0, 1, 6, 6));
+        panel.setBorder(new EmptyBorder(8, 8, 8, 8));
         panel.add(new JLabel("Student Name:"));
         panel.add(nameField);
         panel.add(new JLabel("Student ID:"));
@@ -215,6 +215,3 @@ public class StartQuiz extends JFrame {
         }
     }
 }
-
-
-
