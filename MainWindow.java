@@ -66,7 +66,7 @@ public class MainWindow extends JFrame {
         questionsPanel.setBorder(new EmptyBorder(12, 6, 12, 6));
 
         questionLabel = new JLabel("<html>" + questions.get(currentIndex).ques + "</html>");
-        questionLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        questionLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
         questionLabel.setForeground(new Color(33, 33, 33));
         questionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         questionsPanel.add(questionLabel);
@@ -193,3 +193,4 @@ public class MainWindow extends JFrame {
         dispose();
     }
 }
+

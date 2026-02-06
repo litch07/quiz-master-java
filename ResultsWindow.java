@@ -115,7 +115,7 @@ public class ResultsWindow extends JFrame {
         retakeButton.setFocusPainted(false);
         retakeButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         retakeButton.addActionListener(e -> {
-            new StartQuiz(questions, playerName, studentId);
+            new MainWindow(questions, 0, playerName, studentId);
             dispose();
         });
         buttonPanel.add(retakeButton);
@@ -338,5 +338,6 @@ public class ResultsWindow extends JFrame {
         int lastTotal;
     }
 }
+
 
 
