@@ -38,7 +38,7 @@ public class Dashboard extends JFrame {
         headerPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel titleLabel = new JLabel("Quiz Application");
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 34));
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 32));
         titleLabel.setForeground(new Color(30, 41, 59));
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         headerPanel.add(titleLabel);
@@ -52,7 +52,7 @@ public class Dashboard extends JFrame {
         headerPanel.add(countLabel);
 
         mainPanel.add(headerPanel);
-        mainPanel.add(Box.createVerticalStrut(30));
+        mainPanel.add(Box.createVerticalStrut(26));
 
         JPanel actionsPanel = new JPanel();
         actionsPanel.setOpaque(false);
@@ -70,9 +70,9 @@ public class Dashboard extends JFrame {
             }
         });
         actionsPanel.add(startButton);
-        actionsPanel.add(Box.createVerticalStrut(12));
+        actionsPanel.add(Box.createVerticalStrut(10));
 
-        JButton manageButton = createStyledButton("Manage Questions", new Color(79, 70, 229));
+        JButton manageButton = createStyledButton("Manage Questions", new Color(67, 56, 202));
         manageButton.addActionListener(e -> {
             if (!verifyPassword()) {
                 return;
@@ -81,22 +81,22 @@ public class Dashboard extends JFrame {
             dispose();
         });
         actionsPanel.add(manageButton);
-        actionsPanel.add(Box.createVerticalStrut(12));
+        actionsPanel.add(Box.createVerticalStrut(10));
 
-        JButton resultsButton = createStyledButton("Results", new Color(14, 116, 144));
+        JButton resultsButton = createStyledButton("Results", new Color(15, 118, 110));
         resultsButton.addActionListener(e -> showResultsWindow());
         actionsPanel.add(resultsButton);
-        actionsPanel.add(Box.createVerticalStrut(12));
+        actionsPanel.add(Box.createVerticalStrut(10));
 
         JButton settingsButton = createStyledButton("Settings", new Color(71, 85, 105));
         settingsButton.addActionListener(e -> openSettings());
         actionsPanel.add(settingsButton);
-        actionsPanel.add(Box.createVerticalStrut(12));
+        actionsPanel.add(Box.createVerticalStrut(10));
 
         JButton resetAttemptsButton = createStyledButton("Reset Attempts", new Color(148, 163, 184));
         resetAttemptsButton.addActionListener(e -> resetAttempts());
         actionsPanel.add(resetAttemptsButton);
-        actionsPanel.add(Box.createVerticalStrut(12));
+        actionsPanel.add(Box.createVerticalStrut(10));
 
         JButton exitButton = createStyledButton("Exit", new Color(100, 116, 139));
         exitButton.addActionListener(e -> System.exit(0));
@@ -110,7 +110,7 @@ public class Dashboard extends JFrame {
 
     private JButton createStyledButton(String text, Color bgColor) {
         JButton button = new JButton(text);
-        button.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        button.setFont(new Font("Segoe UI", Font.BOLD, 14));
         button.setBackground(bgColor);
         button.setForeground(Color.WHITE);
         button.setBorder(BorderFactory.createEmptyBorder(12, 20, 12, 20));
@@ -575,4 +575,3 @@ public class Dashboard extends JFrame {
         }
     }
 }
-

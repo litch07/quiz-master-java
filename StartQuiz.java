@@ -22,22 +22,22 @@ public class StartQuiz extends JFrame {
         mainPanel.setBorder(new EmptyBorder(40, 50, 40, 50));
 
         JLabel titleLabel = new JLabel("Quiz Application");
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 40));
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 32));
         titleLabel.setForeground(new Color(30, 41, 59));
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         mainPanel.add(titleLabel);
 
-        mainPanel.add(Box.createVerticalStrut(20));
+        mainPanel.add(Box.createVerticalStrut(18));
 
         JLabel descLabel = new JLabel("<html><center>Ready to test your knowledge?<br>You are about to answer " +
                 questions.size() + " questions.<br>Good luck!</center></html>");
-        descLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        descLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         descLabel.setForeground(new Color(51, 65, 85));
         descLabel.setHorizontalAlignment(SwingConstants.CENTER);
         descLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         mainPanel.add(descLabel);
 
-        mainPanel.add(Box.createVerticalStrut(30));
+        mainPanel.add(Box.createVerticalStrut(26));
 
         JPanel detailsPanel = new JPanel();
         detailsPanel.setOpaque(false);
@@ -50,7 +50,7 @@ public class StartQuiz extends JFrame {
         detailLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         detailsPanel.add(detailLabel);
 
-        detailsPanel.add(Box.createVerticalStrut(8));
+        detailsPanel.add(Box.createVerticalStrut(6));
 
         JLabel typeLabel = new JLabel("Multiple Choice (4 Options)");
         typeLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -60,7 +60,7 @@ public class StartQuiz extends JFrame {
 
         mainPanel.add(detailsPanel);
 
-        mainPanel.add(Box.createVerticalStrut(30));
+        mainPanel.add(Box.createVerticalStrut(26));
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.setOpaque(false);
@@ -68,13 +68,13 @@ public class StartQuiz extends JFrame {
         buttonPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JButton startButton = new JButton("Start Quiz");
-        startButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        startButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
         startButton.setBackground(new Color(37, 99, 235));
         startButton.setForeground(Color.WHITE);
         startButton.setBorder(BorderFactory.createEmptyBorder(12, 30, 12, 30));
         startButton.setFocusPainted(false);
         startButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        startButton.setPreferredSize(new Dimension(150, 50));
+        startButton.setPreferredSize(new Dimension(150, 44));
         startButton.addActionListener(e -> {
             StudentIdentity identity = promptForIdentity();
             if (identity == null) {
@@ -106,13 +106,13 @@ public class StartQuiz extends JFrame {
         buttonPanel.add(Box.createHorizontalStrut(20));
 
         JButton cancelButton = new JButton("Cancel");
-        cancelButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        cancelButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
         cancelButton.setBackground(new Color(100, 116, 139));
         cancelButton.setForeground(Color.WHITE);
         cancelButton.setBorder(BorderFactory.createEmptyBorder(12, 30, 12, 30));
         cancelButton.setFocusPainted(false);
         cancelButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        cancelButton.setPreferredSize(new Dimension(150, 50));
+        cancelButton.setPreferredSize(new Dimension(150, 44));
         cancelButton.addActionListener(e -> {
             new Dashboard(questions);
             dispose();

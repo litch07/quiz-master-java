@@ -29,7 +29,7 @@ public class MainWindow extends JFrame {
 
         JPanel mainPanel = new JPanel(new BorderLayout(15, 15));
         mainPanel.setBackground(new Color(245, 247, 250));
-        mainPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
+        mainPanel.setBorder(new EmptyBorder(20, 24, 20, 24));
 
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setOpaque(false);
@@ -51,19 +51,19 @@ public class MainWindow extends JFrame {
         progressBar.setStringPainted(true);
         progressBar.setString((currentIndex + 1) + "/" + questions.size());
         progressBar.setForeground(new Color(37, 99, 235));
-        progressBar.setPreferredSize(new Dimension(0, 20));
+        progressBar.setPreferredSize(new Dimension(0, 18));
         mainPanel.add(progressBar, BorderLayout.NORTH);
 
         JPanel questionsPanel = new JPanel();
         questionsPanel.setLayout(new BoxLayout(questionsPanel, BoxLayout.Y_AXIS));
         questionsPanel.setOpaque(false);
-        questionsPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
+        questionsPanel.setBorder(new EmptyBorder(16, 16, 16, 16));
 
         questionLabel = new JLabel("<html>" + questions.get(currentIndex).ques + "</html>");
         questionLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
         questionLabel.setForeground(new Color(33, 33, 33));
         questionsPanel.add(questionLabel);
-        questionsPanel.add(Box.createVerticalStrut(20));
+        questionsPanel.add(Box.createVerticalStrut(16));
 
         radioButtons = new JRadioButton[4];
         buttonGroup = new ButtonGroup();
@@ -81,27 +81,27 @@ public class MainWindow extends JFrame {
             optionPanel.setBackground(Color.WHITE);
             optionPanel.setBorder(BorderFactory.createCompoundBorder(
                     BorderFactory.createLineBorder(new Color(226, 232, 240), 1),
-                    new EmptyBorder(12, 12, 12, 12)));
+                    new EmptyBorder(10, 12, 10, 12)));
             optionPanel.add(radioButtons[i], BorderLayout.CENTER);
 
             buttonGroup.add(radioButtons[i]);
             questionsPanel.add(optionPanel);
-            questionsPanel.add(Box.createVerticalStrut(10));
+            questionsPanel.add(Box.createVerticalStrut(8));
         }
 
         mainPanel.add(questionsPanel, BorderLayout.CENTER);
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 14, 0));
         buttonPanel.setOpaque(false);
 
         nextButton = new JButton("Next Question");
         nextButton.setFont(new Font("Segoe UI", Font.BOLD, 13));
         nextButton.setBackground(new Color(37, 99, 235));
         nextButton.setForeground(Color.WHITE);
-        nextButton.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        nextButton.setBorder(BorderFactory.createEmptyBorder(10, 18, 10, 18));
         nextButton.setFocusPainted(false);
         nextButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        nextButton.setPreferredSize(new Dimension(150, 40));
+        nextButton.setPreferredSize(new Dimension(150, 38));
         nextButton.addActionListener(e -> handleNextQuestion());
         buttonPanel.add(nextButton);
 
@@ -109,10 +109,10 @@ public class MainWindow extends JFrame {
         finishButton.setFont(new Font("Segoe UI", Font.BOLD, 13));
         finishButton.setBackground(new Color(14, 116, 144));
         finishButton.setForeground(Color.WHITE);
-        finishButton.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        finishButton.setBorder(BorderFactory.createEmptyBorder(10, 18, 10, 18));
         finishButton.setFocusPainted(false);
         finishButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        finishButton.setPreferredSize(new Dimension(150, 40));
+        finishButton.setPreferredSize(new Dimension(150, 38));
         finishButton.addActionListener(e -> showResults());
 
         if (currentIndex == questions.size() - 1) {
@@ -127,10 +127,10 @@ public class MainWindow extends JFrame {
         quitButton.setFont(new Font("Segoe UI", Font.BOLD, 13));
         quitButton.setBackground(new Color(100, 116, 139));
         quitButton.setForeground(Color.WHITE);
-        quitButton.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        quitButton.setBorder(BorderFactory.createEmptyBorder(10, 18, 10, 18));
         quitButton.setFocusPainted(false);
         quitButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        quitButton.setPreferredSize(new Dimension(100, 40));
+        quitButton.setPreferredSize(new Dimension(100, 38));
         quitButton.addActionListener(e -> {
             int confirm = JOptionPane.showConfirmDialog(this,
                     "Are you sure you want to quit the quiz? Your progress will be lost.",
