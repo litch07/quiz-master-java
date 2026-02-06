@@ -10,6 +10,14 @@ public class StartQuiz extends JFrame {
     private static final String ATTEMPTS_FILE = "attempts.txt";
 
     public StartQuiz(ArrayList<Questions> questions) {
+        init(questions, null);
+    }
+
+    public StartQuiz(ArrayList<Questions> questions, String studentName, String studentId) {
+        init(questions, new StudentIdentity(studentName, studentId));
+    }
+
+    private void init(ArrayList<Questions> questions, StudentIdentity presetIdentity) {
         setTitle("Start Your Quiz");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(720, 520);
@@ -76,7 +84,7 @@ public class StartQuiz extends JFrame {
         startButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         startButton.setPreferredSize(new Dimension(150, 44));
         startButton.addActionListener(e -> {
-            StudentIdentity identity = promptForIdentity();
+            StudentIdentity identity = presetIdentity != null ? presetIdentity : promptForIdentity();
             if (identity == null) {
                 return;
             }
