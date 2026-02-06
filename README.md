@@ -70,6 +70,10 @@ The application will launch with a Dashboard containing four main options:
 3. **Statistics** - View quiz statistics
 4. **Exit** - Close the application
 
+### Portable Build (Release Asset)
+If you download the release ZIP, it includes QuizMaster.jar, questions.txt, and launcher scripts.
+Run un.bat on Windows or un.sh on macOS/Linux. Java 8+ is required.
+
 ## User Guide
 
 ### Adding Questions
@@ -329,3 +333,4 @@ Sadid Ahmed
 Made with care for academic excellence
 
 </div>
+
