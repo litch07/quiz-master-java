@@ -1,4 +1,4 @@
-import javax.swing.*;
+﻿import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.util.ArrayList;
@@ -7,15 +7,17 @@ public class MainWindow extends JFrame {
     static int correct = 0;
     private ArrayList<Questions> questions;
     private int currentIndex;
+    private String playerName;
     private JLabel questionLabel, progressLabel, scoreLabel;
     private JRadioButton[] radioButtons;
     private JButton nextButton, finishButton;
     private ButtonGroup buttonGroup;
     private JProgressBar progressBar;
 
-    public MainWindow(ArrayList<Questions> questions, int index) {
+    public MainWindow(ArrayList<Questions> questions, int index, String playerName) {
         this.questions = questions;
         this.currentIndex = index;
+        this.playerName = playerName;
 
         setTitle("Quiz - Question " + (index + 1) + " of " + questions.size());
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -174,7 +176,7 @@ public class MainWindow extends JFrame {
         }
 
         if (currentIndex + 1 < questions.size()) {
-            new MainWindow(questions, currentIndex + 1);
+            new MainWindow(questions, currentIndex + 1, playerName);
             dispose();
         }
     }
@@ -191,7 +193,7 @@ public class MainWindow extends JFrame {
             correct++;
         }
 
-        new ResultsWindow(questions, correct);
+        new ResultsWindow(questions, correct, playerName);
         correct = 0;
         dispose();
     }

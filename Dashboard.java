@@ -2,8 +2,6 @@
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -90,10 +88,13 @@ public class Dashboard extends JFrame {
             double average = stats.totalQuestions == 0 ? 0.0
                     : (stats.totalCorrect * 100.0) / stats.totalQuestions;
 
+            String lastName = stats.lastName == null || stats.lastName.isEmpty() ? "Unknown" : stats.lastName;
+            String bestName = stats.bestName == null || stats.bestName.isEmpty() ? "Unknown" : stats.bestName;
+
             String message = "Total Quizzes: " + stats.totalQuizzes + "\n" +
-                    "Last Score: " + stats.lastCorrect + "/" + stats.lastTotal +
+                    "Last: " + lastName + " - " + stats.lastCorrect + "/" + stats.lastTotal +
                     String.format(" (%.1f%%)", stats.lastPercent) + "\n" +
-                    String.format("Best Score: %.1f%%\n", stats.bestPercent) +
+                    String.format("Best: %s (%.1f%%)\n", bestName, stats.bestPercent) +
                     String.format("Average Score: %.1f%%", average);
 
             JOptionPane.showMessageDialog(this, message, "Statistics", JOptionPane.INFORMATION_MESSAGE);
@@ -146,18 +147,46 @@ public class Dashboard extends JFrame {
         }
 
         try (Scanner sc = new Scanner(file)) {
-            Stats stats = new Stats();
-            stats.totalQuizzes = sc.nextInt();
-            stats.totalCorrect = sc.nextInt();
-            stats.totalQuestions = sc.nextInt();
-            stats.bestPercent = sc.nextDouble();
-            stats.lastPercent = sc.nextDouble();
-            stats.lastCorrect = sc.nextInt();
-            stats.lastTotal = sc.nextInt();
-            return stats;
+            ArrayList<String> lines = new ArrayList<>();
+            while (sc.hasNextLine()) {
+                lines.add(sc.nextLine());
+            }
+
+            if (lines.size() >= 9) {
+                Stats stats = new Stats();
+                stats.totalQuizzes = Integer.parseInt(lines.get(0).trim());
+                stats.totalCorrect = Integer.parseInt(lines.get(1).trim());
+                stats.totalQuestions = Integer.parseInt(lines.get(2).trim());
+                stats.bestPercent = Double.parseDouble(lines.get(3).trim());
+                stats.bestName = lines.get(4).trim();
+                stats.lastPercent = Double.parseDouble(lines.get(5).trim());
+                stats.lastName = lines.get(6).trim();
+                stats.lastCorrect = Integer.parseInt(lines.get(7).trim());
+                stats.lastTotal = Integer.parseInt(lines.get(8).trim());
+                return stats;
+            }
+
+            Scanner tokenScanner = new Scanner(file);
+            if (tokenScanner.hasNextInt()) {
+                Stats stats = new Stats();
+                stats.totalQuizzes = tokenScanner.nextInt();
+                stats.totalCorrect = tokenScanner.nextInt();
+                stats.totalQuestions = tokenScanner.nextInt();
+                stats.bestPercent = tokenScanner.nextDouble();
+                stats.lastPercent = tokenScanner.nextDouble();
+                stats.lastCorrect = tokenScanner.nextInt();
+                stats.lastTotal = tokenScanner.nextInt();
+                stats.bestName = "";
+                stats.lastName = "";
+                tokenScanner.close();
+                return stats;
+            }
+            tokenScanner.close();
         } catch (Exception e) {
             return null;
         }
+
+        return null;
     }
 
     private static class Stats {
@@ -165,7 +194,9 @@ public class Dashboard extends JFrame {
         int totalCorrect;
         int totalQuestions;
         double bestPercent;
+        String bestName;
         double lastPercent;
+        String lastName;
         int lastCorrect;
         int lastTotal;
     }

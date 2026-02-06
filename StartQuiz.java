@@ -76,7 +76,11 @@ public class StartQuiz extends JFrame {
         startButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         startButton.setPreferredSize(new Dimension(150, 50));
         startButton.addActionListener(e -> {
-            new MainWindow(questions, 0);
+            String playerName = promptForName();
+            if (playerName == null) {
+                return;
+            }
+            new MainWindow(questions, 0, playerName);
             dispose();
         });
         buttonPanel.add(startButton);
@@ -101,5 +105,21 @@ public class StartQuiz extends JFrame {
 
         add(mainPanel);
         setVisible(true);
+    }
+
+    private String promptForName() {
+        while (true) {
+            String input = JOptionPane.showInputDialog(this, "Enter your name:", "Player Name",
+                    JOptionPane.PLAIN_MESSAGE);
+            if (input == null) {
+                return null;
+            }
+            String name = input.trim();
+            if (!name.isEmpty()) {
+                return name;
+            }
+            JOptionPane.showMessageDialog(this, "Name cannot be empty.", "Invalid Name",
+                    JOptionPane.WARNING_MESSAGE);
+        }
     }
 }
