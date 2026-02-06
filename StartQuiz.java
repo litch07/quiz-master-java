@@ -1,23 +1,26 @@
 ﻿import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class StartQuiz extends JFrame {
+    private static final String SETTINGS_FILE = "settings.txt";
+    private static final String ATTEMPTS_FILE = "attempts.txt";
+
     public StartQuiz(ArrayList<Questions> questions) {
         setTitle("Start Your Quiz");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(700, 500);
+        setSize(700, 520);
         setLocationRelativeTo(null);
         setResizable(false);
 
-        // Create main panel with a neutral background
         JPanel mainPanel = new JPanel();
         mainPanel.setBackground(new Color(245, 247, 250));
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBorder(new EmptyBorder(60, 40, 60, 40));
 
-        // Title
         JLabel titleLabel = new JLabel("Quiz Application");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 40));
         titleLabel.setForeground(new Color(30, 41, 59));
@@ -26,7 +29,6 @@ public class StartQuiz extends JFrame {
 
         mainPanel.add(Box.createVerticalStrut(30));
 
-        // Description
         JLabel descLabel = new JLabel("<html><center>Ready to test your knowledge?<br>You are about to answer " +
                 questions.size() + " questions.<br>Good luck!</center></html>");
         descLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
@@ -35,9 +37,8 @@ public class StartQuiz extends JFrame {
         descLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         mainPanel.add(descLabel);
 
-        mainPanel.add(Box.createVerticalStrut(50));
+        mainPanel.add(Box.createVerticalStrut(40));
 
-        // Quiz details panel
         JPanel detailsPanel = new JPanel();
         detailsPanel.setOpaque(false);
         detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
@@ -59,9 +60,8 @@ public class StartQuiz extends JFrame {
 
         mainPanel.add(detailsPanel);
 
-        mainPanel.add(Box.createVerticalStrut(50));
+        mainPanel.add(Box.createVerticalStrut(40));
 
-        // Buttons panel
         JPanel buttonPanel = new JPanel();
         buttonPanel.setOpaque(false);
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
@@ -76,11 +76,24 @@ public class StartQuiz extends JFrame {
         startButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         startButton.setPreferredSize(new Dimension(150, 50));
         startButton.addActionListener(e -> {
-            String playerName = promptForName();
-            if (playerName == null) {
+            StudentIdentity identity = promptForIdentity();
+            if (identity == null) {
                 return;
             }
-            new MainWindow(questions, 0, playerName);
+
+            Settings settings = loadSettings();
+            int maxTrials = settings.maxTrials;
+            if (maxTrials > 0) {
+                int attempts = getAttempts(identity.studentId);
+                if (attempts >= maxTrials) {
+                    JOptionPane.showMessageDialog(this,
+                            "No attempts remaining for this student ID.\nPlease contact your teacher.",
+                            "Attempts Limit Reached", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+            }
+
+            new MainWindow(questions, 0, identity.name, identity.studentId);
             dispose();
         });
         buttonPanel.add(startButton);
@@ -107,19 +120,92 @@ public class StartQuiz extends JFrame {
         setVisible(true);
     }
 
-    private String promptForName() {
+    private StudentIdentity promptForIdentity() {
+        JTextField nameField = new JTextField();
+        JTextField idField = new JTextField();
+
+        JPanel panel = new JPanel(new GridLayout(0, 1, 6, 6));
+        panel.add(new JLabel("Student Name:"));
+        panel.add(nameField);
+        panel.add(new JLabel("Student ID:"));
+        panel.add(idField);
+
         while (true) {
-            String input = JOptionPane.showInputDialog(this, "Enter your name:", "Player Name",
-                    JOptionPane.PLAIN_MESSAGE);
-            if (input == null) {
+            int option = JOptionPane.showConfirmDialog(this, panel, "Student Information",
+                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+            if (option != JOptionPane.OK_OPTION) {
                 return null;
             }
-            String name = input.trim();
-            if (!name.isEmpty()) {
-                return name;
+
+            String name = nameField.getText().trim();
+            String id = idField.getText().trim();
+            if (name.isEmpty() || id.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Name and ID are required.",
+                        "Invalid Input", JOptionPane.WARNING_MESSAGE);
+                continue;
             }
-            JOptionPane.showMessageDialog(this, "Name cannot be empty.", "Invalid Name",
-                    JOptionPane.WARNING_MESSAGE);
+
+            return new StudentIdentity(name, id);
+        }
+    }
+
+    private Settings loadSettings() {
+        File file = new File(SETTINGS_FILE);
+        Settings settings = new Settings();
+        settings.password = "admin";
+        settings.maxTrials = 0;
+
+        if (!file.exists()) {
+            return settings;
+        }
+
+        try (Scanner sc = new Scanner(file)) {
+            if (sc.hasNextLine()) {
+                settings.password = sc.nextLine().trim();
+            }
+            if (sc.hasNextLine()) {
+                settings.maxTrials = Integer.parseInt(sc.nextLine().trim());
+            }
+        } catch (Exception e) {
+            return settings;
+        }
+
+        return settings;
+    }
+
+    private int getAttempts(String studentId) {
+        File file = new File(ATTEMPTS_FILE);
+        if (!file.exists()) {
+            return 0;
+        }
+
+        try (Scanner sc = new Scanner(file)) {
+            while (sc.hasNextLine()) {
+                String line = sc.nextLine();
+                String[] parts = line.split("\\|", 2);
+                if (parts.length == 2 && parts[0].trim().equals(studentId)) {
+                    return Integer.parseInt(parts[1].trim());
+                }
+            }
+        } catch (Exception e) {
+            return 0;
+        }
+
+        return 0;
+    }
+
+    private static class Settings {
+        String password;
+        int maxTrials;
+    }
+
+    private static class StudentIdentity {
+        String name;
+        String studentId;
+
+        StudentIdentity(String name, String studentId) {
+            this.name = name;
+            this.studentId = studentId;
         }
     }
 }

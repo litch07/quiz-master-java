@@ -2,28 +2,31 @@
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Scanner;
 
 public class ResultsWindow extends JFrame {
     private static final String STATS_FILE = "stats.txt";
+    private static final String RESULTS_FILE = "results.log";
+    private static final String ATTEMPTS_FILE = "attempts.txt";
 
-    public ResultsWindow(ArrayList<Questions> questions, int correctAnswers, String playerName) {
+    public ResultsWindow(ArrayList<Questions> questions, int correctAnswers, String playerName, String studentId) {
         setTitle("Quiz Results");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(600, 520);
         setLocationRelativeTo(null);
         setResizable(false);
 
-        // Main panel with neutral background
         JPanel mainPanel = new JPanel();
         mainPanel.setBackground(new Color(245, 247, 250));
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBorder(new EmptyBorder(40, 50, 40, 50));
 
-        // Title
         JLabel titleLabel = new JLabel("Quiz Completed!");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 32));
         titleLabel.setForeground(new Color(30, 41, 59));
@@ -32,7 +35,7 @@ public class ResultsWindow extends JFrame {
 
         mainPanel.add(Box.createVerticalStrut(12));
 
-        JLabel nameLabel = new JLabel("Player: " + playerName);
+        JLabel nameLabel = new JLabel("Student: " + playerName + " (" + studentId + ")");
         nameLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         nameLabel.setForeground(new Color(51, 65, 85));
         nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -40,10 +43,11 @@ public class ResultsWindow extends JFrame {
 
         mainPanel.add(Box.createVerticalStrut(30));
 
-        // Score display
         int totalQuestions = questions.size();
         double percentage = (correctAnswers * 100.0) / totalQuestions;
-        updateStats(totalQuestions, correctAnswers, percentage, playerName);
+        updateStats(totalQuestions, correctAnswers, percentage, playerName, studentId);
+        appendResultLog(totalQuestions, correctAnswers, percentage, playerName, studentId);
+        incrementAttempts(studentId);
 
         JPanel scorePanel = new JPanel();
         scorePanel.setOpaque(false);
@@ -76,7 +80,6 @@ public class ResultsWindow extends JFrame {
 
         mainPanel.add(Box.createVerticalStrut(30));
 
-        // Grade
         String grade;
         if (percentage >= 90) {
             grade = "A+ (Excellent)";
@@ -98,7 +101,6 @@ public class ResultsWindow extends JFrame {
 
         mainPanel.add(Box.createVerticalStrut(30));
 
-        // Buttons panel
         JPanel buttonPanel = new JPanel();
         buttonPanel.setOpaque(false);
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
@@ -138,23 +140,79 @@ public class ResultsWindow extends JFrame {
         setVisible(true);
     }
 
-    private void updateStats(int totalQuestions, int correctAnswers, double percentage, String playerName) {
+    private void appendResultLog(int totalQuestions, int correctAnswers, double percentage,
+                                 String playerName, String studentId) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        String timestamp = LocalDateTime.now().format(formatter);
+        String line = String.format(Locale.US, "%s | %s (%s) | %d/%d | %.1f%%",
+                timestamp, playerName, studentId, correctAnswers, totalQuestions, percentage);
+
+        try (FileWriter writer = new FileWriter(RESULTS_FILE, true)) {
+            writer.write(line + System.lineSeparator());
+        } catch (Exception e) {
+            System.out.println("Warning: Could not write results log.");
+        }
+    }
+
+    private void incrementAttempts(String studentId) {
+        File file = new File(ATTEMPTS_FILE);
+        ArrayList<String> lines = new ArrayList<>();
+        boolean updated = false;
+
+        if (file.exists()) {
+            try (Scanner sc = new Scanner(file)) {
+                while (sc.hasNextLine()) {
+                    String line = sc.nextLine();
+                    String[] parts = line.split("\\|", 2);
+                    if (parts.length == 2 && parts[0].trim().equals(studentId)) {
+                        int count = 0;
+                        try {
+                            count = Integer.parseInt(parts[1].trim());
+                        } catch (NumberFormatException e) {
+                            count = 0;
+                        }
+                        count += 1;
+                        lines.add(studentId + "|" + count);
+                        updated = true;
+                    } else {
+                        lines.add(line);
+                    }
+                }
+            } catch (Exception e) {
+                lines.clear();
+            }
+        }
+
+        if (!updated) {
+            lines.add(studentId + "|1");
+        }
+
+        try (PrintWriter out = new PrintWriter(file)) {
+            for (String line : lines) {
+                out.println(line);
+            }
+        } catch (Exception e) {
+            System.out.println("Warning: Could not update attempts.");
+        }
+    }
+
+    private void updateStats(int totalQuestions, int correctAnswers, double percentage,
+                             String playerName, String studentId) {
         int totalQuizzes = 0;
         int totalCorrect = 0;
         int totalQuestionsAll = 0;
         double bestPercent = 0.0;
         String bestName = "";
+        String bestId = "";
 
-        File file = new File(STATS_FILE);
-        if (file.exists()) {
-            Stats existing = readStats();
-            if (existing != null) {
-                totalQuizzes = existing.totalQuizzes;
-                totalCorrect = existing.totalCorrect;
-                totalQuestionsAll = existing.totalQuestions;
-                bestPercent = existing.bestPercent;
-                bestName = existing.bestName;
-            }
+        Stats existing = readStats();
+        if (existing != null) {
+            totalQuizzes = existing.totalQuizzes;
+            totalCorrect = existing.totalCorrect;
+            totalQuestionsAll = existing.totalQuestions;
+            bestPercent = existing.bestPercent;
+            bestName = existing.bestName;
+            bestId = existing.bestId;
         }
 
         totalQuizzes += 1;
@@ -163,6 +221,7 @@ public class ResultsWindow extends JFrame {
         if (percentage >= bestPercent) {
             bestPercent = percentage;
             bestName = playerName;
+            bestId = studentId;
         }
 
         try (PrintWriter out = new PrintWriter(STATS_FILE)) {
@@ -171,8 +230,10 @@ public class ResultsWindow extends JFrame {
             out.println(totalQuestionsAll);
             out.println(String.format(Locale.US, "%.4f", bestPercent));
             out.println(bestName);
+            out.println(bestId);
             out.println(String.format(Locale.US, "%.4f", percentage));
             out.println(playerName);
+            out.println(studentId);
             out.println(correctAnswers);
             out.println(totalQuestions);
         } catch (Exception e) {
@@ -192,36 +253,21 @@ public class ResultsWindow extends JFrame {
                 lines.add(sc.nextLine());
             }
 
-            if (lines.size() >= 9) {
+            if (lines.size() >= 11) {
                 Stats stats = new Stats();
                 stats.totalQuizzes = Integer.parseInt(lines.get(0).trim());
                 stats.totalCorrect = Integer.parseInt(lines.get(1).trim());
                 stats.totalQuestions = Integer.parseInt(lines.get(2).trim());
                 stats.bestPercent = Double.parseDouble(lines.get(3).trim());
                 stats.bestName = lines.get(4).trim();
-                stats.lastPercent = Double.parseDouble(lines.get(5).trim());
-                stats.lastName = lines.get(6).trim();
-                stats.lastCorrect = Integer.parseInt(lines.get(7).trim());
-                stats.lastTotal = Integer.parseInt(lines.get(8).trim());
+                stats.bestId = lines.get(5).trim();
+                stats.lastPercent = Double.parseDouble(lines.get(6).trim());
+                stats.lastName = lines.get(7).trim();
+                stats.lastId = lines.get(8).trim();
+                stats.lastCorrect = Integer.parseInt(lines.get(9).trim());
+                stats.lastTotal = Integer.parseInt(lines.get(10).trim());
                 return stats;
             }
-
-            Scanner tokenScanner = new Scanner(file);
-            if (tokenScanner.hasNextInt()) {
-                Stats stats = new Stats();
-                stats.totalQuizzes = tokenScanner.nextInt();
-                stats.totalCorrect = tokenScanner.nextInt();
-                stats.totalQuestions = tokenScanner.nextInt();
-                stats.bestPercent = tokenScanner.nextDouble();
-                stats.lastPercent = tokenScanner.nextDouble();
-                stats.lastCorrect = tokenScanner.nextInt();
-                stats.lastTotal = tokenScanner.nextInt();
-                stats.bestName = "";
-                stats.lastName = "";
-                tokenScanner.close();
-                return stats;
-            }
-            tokenScanner.close();
         } catch (Exception e) {
             return null;
         }
@@ -235,8 +281,10 @@ public class ResultsWindow extends JFrame {
         int totalQuestions;
         double bestPercent;
         String bestName;
+        String bestId;
         double lastPercent;
         String lastName;
+        String lastId;
         int lastCorrect;
         int lastTotal;
     }

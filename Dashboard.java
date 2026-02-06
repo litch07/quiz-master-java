@@ -3,10 +3,14 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Dashboard extends JFrame {
     private static final String STATS_FILE = "stats.txt";
+    private static final String RESULTS_FILE = "results.log";
+    private static final String SETTINGS_FILE = "settings.txt";
+
     private ArrayList<Questions> questions;
     private JPanel mainPanel;
 
@@ -15,41 +19,42 @@ public class Dashboard extends JFrame {
 
         setTitle("Quiz Application - Dashboard");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(600, 500);
+        setSize(700, 520);
         setLocationRelativeTo(null);
         setResizable(false);
 
-        // Main panel with neutral background
         mainPanel = new JPanel();
         mainPanel.setBackground(new Color(245, 247, 250));
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        mainPanel.setBorder(new EmptyBorder(50, 50, 50, 50));
+        mainPanel.setLayout(new BorderLayout(20, 20));
+        mainPanel.setBorder(new EmptyBorder(30, 30, 30, 30));
 
-        // Title
+        JPanel headerPanel = new JPanel();
+        headerPanel.setOpaque(false);
+        headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
+
         JLabel titleLabel = new JLabel("Quiz Application");
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 36));
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 34));
         titleLabel.setForeground(new Color(30, 41, 59));
-        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        mainPanel.add(titleLabel);
+        titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        headerPanel.add(titleLabel);
 
-        mainPanel.add(Box.createVerticalStrut(30));
+        headerPanel.add(Box.createVerticalStrut(6));
 
-        // Questions count
         JLabel countLabel = new JLabel("Questions in Bank: " + questions.size());
-        countLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        countLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         countLabel.setForeground(new Color(51, 65, 85));
-        countLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        mainPanel.add(countLabel);
+        countLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        headerPanel.add(countLabel);
 
-        mainPanel.add(Box.createVerticalStrut(50));
+        mainPanel.add(headerPanel, BorderLayout.NORTH);
 
-        // Buttons panel
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setOpaque(false);
-        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
-        buttonPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JPanel contentPanel = new JPanel(new GridLayout(1, 2, 20, 0));
+        contentPanel.setOpaque(false);
 
-        // Start Quiz Button
+        JPanel actionsPanel = new JPanel();
+        actionsPanel.setOpaque(false);
+        actionsPanel.setLayout(new BoxLayout(actionsPanel, BoxLayout.Y_AXIS));
+
         JButton startButton = createStyledButton("Start Quiz", new Color(37, 99, 235));
         startButton.addActionListener(e -> {
             if (questions.isEmpty()) {
@@ -60,56 +65,63 @@ public class Dashboard extends JFrame {
                 dispose();
             }
         });
-        buttonPanel.add(startButton);
+        actionsPanel.add(startButton);
+        actionsPanel.add(Box.createVerticalStrut(12));
 
-        buttonPanel.add(Box.createVerticalStrut(15));
-
-        // Manage Questions Button
         JButton manageButton = createStyledButton("Manage Questions", new Color(79, 70, 229));
         manageButton.addActionListener(e -> {
+            if (!verifyPassword()) {
+                return;
+            }
             new QuestionManager(this, questions);
             dispose();
         });
-        buttonPanel.add(manageButton);
+        actionsPanel.add(manageButton);
+        actionsPanel.add(Box.createVerticalStrut(12));
 
-        buttonPanel.add(Box.createVerticalStrut(15));
-
-        // View Statistics Button
         JButton statsButton = createStyledButton("View Statistics", new Color(14, 116, 144));
-        statsButton.addActionListener(e -> {
-            Stats stats = loadStats();
-            if (stats == null || stats.totalQuizzes == 0) {
-                JOptionPane.showMessageDialog(this,
-                        "No quiz statistics yet. Complete a quiz to see results.",
-                        "Statistics", JOptionPane.INFORMATION_MESSAGE);
-                return;
-            }
+        statsButton.addActionListener(e -> showStatsDialog());
+        actionsPanel.add(statsButton);
+        actionsPanel.add(Box.createVerticalStrut(12));
 
-            double average = stats.totalQuestions == 0 ? 0.0
-                    : (stats.totalCorrect * 100.0) / stats.totalQuestions;
+        JButton settingsButton = createStyledButton("Settings", new Color(71, 85, 105));
+        settingsButton.addActionListener(e -> openSettings());
+        actionsPanel.add(settingsButton);
+        actionsPanel.add(Box.createVerticalStrut(12));
 
-            String lastName = stats.lastName == null || stats.lastName.isEmpty() ? "Unknown" : stats.lastName;
-            String bestName = stats.bestName == null || stats.bestName.isEmpty() ? "Unknown" : stats.bestName;
-
-            String message = "Total Quizzes: " + stats.totalQuizzes + "\n" +
-                    "Last: " + lastName + " - " + stats.lastCorrect + "/" + stats.lastTotal +
-                    String.format(" (%.1f%%)", stats.lastPercent) + "\n" +
-                    String.format("Best: %s (%.1f%%)\n", bestName, stats.bestPercent) +
-                    String.format("Average Score: %.1f%%", average);
-
-            JOptionPane.showMessageDialog(this, message, "Statistics", JOptionPane.INFORMATION_MESSAGE);
-        });
-        buttonPanel.add(statsButton);
-
-        buttonPanel.add(Box.createVerticalStrut(15));
-
-        // Exit Button
         JButton exitButton = createStyledButton("Exit", new Color(100, 116, 139));
         exitButton.addActionListener(e -> System.exit(0));
-        buttonPanel.add(exitButton);
+        actionsPanel.add(exitButton);
 
-        mainPanel.add(buttonPanel);
-        mainPanel.add(Box.createVerticalStrut(30));
+        contentPanel.add(actionsPanel);
+
+        JPanel resultsPanel = new JPanel();
+        resultsPanel.setOpaque(false);
+        resultsPanel.setLayout(new BoxLayout(resultsPanel, BoxLayout.Y_AXIS));
+        resultsPanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(new Color(203, 213, 225)),
+                "Recent Results"));
+
+        List<String> recentResults = readRecentResults(5);
+        if (recentResults.isEmpty()) {
+            JLabel emptyLabel = new JLabel("No results yet. Complete a quiz to see results here.");
+            emptyLabel.setFont(new Font("Segoe UI", Font.ITALIC, 13));
+            emptyLabel.setForeground(new Color(100, 116, 139));
+            emptyLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+            resultsPanel.add(emptyLabel);
+        } else {
+            for (String line : recentResults) {
+                JLabel lineLabel = new JLabel(line);
+                lineLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+                lineLabel.setForeground(new Color(51, 65, 85));
+                lineLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+                resultsPanel.add(lineLabel);
+                resultsPanel.add(Box.createVerticalStrut(8));
+            }
+        }
+
+        contentPanel.add(resultsPanel);
+        mainPanel.add(contentPanel, BorderLayout.CENTER);
 
         add(mainPanel);
         setVisible(true);
@@ -117,16 +129,15 @@ public class Dashboard extends JFrame {
 
     private JButton createStyledButton(String text, Color bgColor) {
         JButton button = new JButton(text);
-        button.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        button.setFont(new Font("Segoe UI", Font.BOLD, 15));
         button.setBackground(bgColor);
         button.setForeground(Color.WHITE);
-        button.setBorder(BorderFactory.createEmptyBorder(12, 30, 12, 30));
+        button.setBorder(BorderFactory.createEmptyBorder(12, 20, 12, 20));
         button.setFocusPainted(false);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        button.setMaximumSize(new Dimension(300, 50));
-        button.setAlignmentX(Component.CENTER_ALIGNMENT);
+        button.setMaximumSize(new Dimension(240, 44));
+        button.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        // Hover effect
         button.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 button.setBackground(bgColor.brighter());
@@ -138,6 +149,171 @@ public class Dashboard extends JFrame {
         });
 
         return button;
+    }
+
+    private void showStatsDialog() {
+        Stats stats = loadStats();
+        if (stats == null || stats.totalQuizzes == 0) {
+            JOptionPane.showMessageDialog(this,
+                    "No quiz statistics yet. Complete a quiz to see results.",
+                    "Statistics", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        double average = stats.totalQuestions == 0 ? 0.0
+                : (stats.totalCorrect * 100.0) / stats.totalQuestions;
+
+        String lastName = (stats.lastName == null || stats.lastName.isEmpty()) ? "Unknown" : stats.lastName;
+        String lastId = (stats.lastId == null || stats.lastId.isEmpty()) ? "N/A" : stats.lastId;
+        String bestName = (stats.bestName == null || stats.bestName.isEmpty()) ? "Unknown" : stats.bestName;
+        String bestId = (stats.bestId == null || stats.bestId.isEmpty()) ? "N/A" : stats.bestId;
+
+        String message = "Total Quizzes: " + stats.totalQuizzes + "\n" +
+                "Last: " + lastName + " (" + lastId + ") - " + stats.lastCorrect + "/" + stats.lastTotal +
+                String.format(" (%.1f%%)\n", stats.lastPercent) +
+                String.format("Best: %s (%s) - %.1f%%\n", bestName, bestId, stats.bestPercent) +
+                String.format("Average Score: %.1f%%", average);
+
+        JOptionPane.showMessageDialog(this, message, "Statistics", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private boolean verifyPassword() {
+        Settings settings = loadSettings();
+        String password = settings.password;
+
+        JPasswordField passwordField = new JPasswordField();
+        int option = JOptionPane.showConfirmDialog(this, passwordField,
+                "Enter teacher password", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (option != JOptionPane.OK_OPTION) {
+            return false;
+        }
+
+        String entered = new String(passwordField.getPassword());
+        if (!entered.equals(password)) {
+            JOptionPane.showMessageDialog(this, "Incorrect password.", "Access Denied",
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        return true;
+    }
+
+    private void openSettings() {
+        if (!verifyPassword()) {
+            return;
+        }
+
+        Settings settings = loadSettings();
+
+        JTextField maxTrialsField = new JTextField(settings.maxTrials == 0 ? "0" : String.valueOf(settings.maxTrials));
+        JPasswordField currentPassword = new JPasswordField();
+        JPasswordField newPassword = new JPasswordField();
+        JPasswordField confirmPassword = new JPasswordField();
+
+        JPanel panel = new JPanel(new GridLayout(0, 1, 6, 6));
+        panel.add(new JLabel("Max trials per student (0 = unlimited):"));
+        panel.add(maxTrialsField);
+        panel.add(new JLabel("Current password (required to change password):"));
+        panel.add(currentPassword);
+        panel.add(new JLabel("New password (leave empty to keep current):"));
+        panel.add(newPassword);
+        panel.add(new JLabel("Confirm new password:"));
+        panel.add(confirmPassword);
+
+        int result = JOptionPane.showConfirmDialog(this, panel, "Settings",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (result != JOptionPane.OK_OPTION) {
+            return;
+        }
+
+        int maxTrials;
+        try {
+            maxTrials = Integer.parseInt(maxTrialsField.getText().trim());
+            if (maxTrials < 0) {
+                throw new NumberFormatException();
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Max trials must be 0 or a positive number.",
+                    "Invalid Value", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String newPasswordValue = new String(newPassword.getPassword()).trim();
+        String confirmValue = new String(confirmPassword.getPassword()).trim();
+        String currentValue = new String(currentPassword.getPassword());
+
+        if (!newPasswordValue.isEmpty()) {
+            if (!currentValue.equals(settings.password)) {
+                JOptionPane.showMessageDialog(this, "Current password is incorrect.",
+                        "Invalid Password", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            if (!newPasswordValue.equals(confirmValue)) {
+                JOptionPane.showMessageDialog(this, "New passwords do not match.",
+                        "Invalid Password", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            settings.password = newPasswordValue;
+        }
+
+        settings.maxTrials = maxTrials;
+        saveSettings(settings);
+        JOptionPane.showMessageDialog(this, "Settings updated successfully.",
+                "Settings", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private Settings loadSettings() {
+        File file = new File(SETTINGS_FILE);
+        Settings settings = new Settings();
+        settings.password = "admin";
+        settings.maxTrials = 0;
+
+        if (!file.exists()) {
+            return settings;
+        }
+
+        try (Scanner sc = new Scanner(file)) {
+            if (sc.hasNextLine()) {
+                settings.password = sc.nextLine().trim();
+            }
+            if (sc.hasNextLine()) {
+                String value = sc.nextLine().trim();
+                settings.maxTrials = Integer.parseInt(value);
+            }
+        } catch (Exception e) {
+            return settings;
+        }
+
+        return settings;
+    }
+
+    private void saveSettings(Settings settings) {
+        try (java.io.PrintWriter out = new java.io.PrintWriter(SETTINGS_FILE)) {
+            out.println(settings.password);
+            out.println(settings.maxTrials);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Could not save settings.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private List<String> readRecentResults(int limit) {
+        File file = new File(RESULTS_FILE);
+        ArrayList<String> lines = new ArrayList<>();
+        if (!file.exists()) {
+            return lines;
+        }
+
+        try (Scanner sc = new Scanner(file)) {
+            while (sc.hasNextLine()) {
+                lines.add(sc.nextLine());
+            }
+        } catch (Exception e) {
+            return lines;
+        }
+
+        int start = Math.max(0, lines.size() - limit);
+        return lines.subList(start, lines.size());
     }
 
     private Stats loadStats() {
@@ -152,6 +328,22 @@ public class Dashboard extends JFrame {
                 lines.add(sc.nextLine());
             }
 
+            if (lines.size() >= 11) {
+                Stats stats = new Stats();
+                stats.totalQuizzes = Integer.parseInt(lines.get(0).trim());
+                stats.totalCorrect = Integer.parseInt(lines.get(1).trim());
+                stats.totalQuestions = Integer.parseInt(lines.get(2).trim());
+                stats.bestPercent = Double.parseDouble(lines.get(3).trim());
+                stats.bestName = lines.get(4).trim();
+                stats.bestId = lines.get(5).trim();
+                stats.lastPercent = Double.parseDouble(lines.get(6).trim());
+                stats.lastName = lines.get(7).trim();
+                stats.lastId = lines.get(8).trim();
+                stats.lastCorrect = Integer.parseInt(lines.get(9).trim());
+                stats.lastTotal = Integer.parseInt(lines.get(10).trim());
+                return stats;
+            }
+
             if (lines.size() >= 9) {
                 Stats stats = new Stats();
                 stats.totalQuizzes = Integer.parseInt(lines.get(0).trim());
@@ -159,8 +351,10 @@ public class Dashboard extends JFrame {
                 stats.totalQuestions = Integer.parseInt(lines.get(2).trim());
                 stats.bestPercent = Double.parseDouble(lines.get(3).trim());
                 stats.bestName = lines.get(4).trim();
+                stats.bestId = "";
                 stats.lastPercent = Double.parseDouble(lines.get(5).trim());
                 stats.lastName = lines.get(6).trim();
+                stats.lastId = "";
                 stats.lastCorrect = Integer.parseInt(lines.get(7).trim());
                 stats.lastTotal = Integer.parseInt(lines.get(8).trim());
                 return stats;
@@ -177,7 +371,9 @@ public class Dashboard extends JFrame {
                 stats.lastCorrect = tokenScanner.nextInt();
                 stats.lastTotal = tokenScanner.nextInt();
                 stats.bestName = "";
+                stats.bestId = "";
                 stats.lastName = "";
+                stats.lastId = "";
                 tokenScanner.close();
                 return stats;
             }
@@ -189,14 +385,21 @@ public class Dashboard extends JFrame {
         return null;
     }
 
+    private static class Settings {
+        String password;
+        int maxTrials;
+    }
+
     private static class Stats {
         int totalQuizzes;
         int totalCorrect;
         int totalQuestions;
         double bestPercent;
         String bestName;
+        String bestId;
         double lastPercent;
         String lastName;
+        String lastId;
         int lastCorrect;
         int lastTotal;
     }

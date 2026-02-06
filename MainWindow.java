@@ -8,76 +8,63 @@ public class MainWindow extends JFrame {
     private ArrayList<Questions> questions;
     private int currentIndex;
     private String playerName;
+    private String studentId;
     private JLabel questionLabel, progressLabel, scoreLabel;
     private JRadioButton[] radioButtons;
     private JButton nextButton, finishButton;
     private ButtonGroup buttonGroup;
     private JProgressBar progressBar;
 
-    public MainWindow(ArrayList<Questions> questions, int index, String playerName) {
+    public MainWindow(ArrayList<Questions> questions, int index, String playerName, String studentId) {
         this.questions = questions;
         this.currentIndex = index;
         this.playerName = playerName;
+        this.studentId = studentId;
 
         setTitle("Quiz - Question " + (index + 1) + " of " + questions.size());
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(700, 550);
+        setSize(720, 560);
         setLocationRelativeTo(null);
         setResizable(false);
 
-        // Create main panel with gradient background
-        JPanel mainPanel = new JPanel(new BorderLayout(15, 15)) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2d = (Graphics2D) g;
-                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                GradientPaint gp = new GradientPaint(0, 0, new Color(245, 245, 245),
-                        0, getHeight(), new Color(224, 224, 224));
-                g2d.setPaint(gp);
-                g2d.fillRect(0, 0, getWidth(), getHeight());
-            }
-        };
+        JPanel mainPanel = new JPanel(new BorderLayout(15, 15));
+        mainPanel.setBackground(new Color(245, 247, 250));
         mainPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        // Header panel with progress and score
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setOpaque(false);
 
         progressLabel = new JLabel("Question " + (currentIndex + 1) + " of " + questions.size());
         progressLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        progressLabel.setForeground(new Color(30, 41, 59));
         headerPanel.add(progressLabel, BorderLayout.WEST);
 
         scoreLabel = new JLabel("Correct: " + correct);
         scoreLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        scoreLabel.setForeground(new Color(76, 175, 80));
+        scoreLabel.setForeground(new Color(37, 99, 235));
         headerPanel.add(scoreLabel, BorderLayout.EAST);
 
         mainPanel.add(headerPanel, BorderLayout.NORTH);
 
-        // Progress bar
         progressBar = new JProgressBar(0, questions.size());
         progressBar.setValue(currentIndex + 1);
         progressBar.setStringPainted(true);
         progressBar.setString((currentIndex + 1) + "/" + questions.size());
-        progressBar.setForeground(new Color(33, 150, 243));
+        progressBar.setForeground(new Color(37, 99, 235));
         progressBar.setPreferredSize(new Dimension(0, 20));
         mainPanel.add(progressBar, BorderLayout.NORTH);
 
-        // Questions panel
         JPanel questionsPanel = new JPanel();
         questionsPanel.setLayout(new BoxLayout(questionsPanel, BoxLayout.Y_AXIS));
         questionsPanel.setOpaque(false);
         questionsPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        // Question label
         questionLabel = new JLabel("<html>" + questions.get(currentIndex).ques + "</html>");
         questionLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
         questionLabel.setForeground(new Color(33, 33, 33));
         questionsPanel.add(questionLabel);
         questionsPanel.add(Box.createVerticalStrut(20));
 
-        // Options
         radioButtons = new JRadioButton[4];
         buttonGroup = new ButtonGroup();
         Questions currentQuestion = questions.get(currentIndex);
@@ -91,9 +78,9 @@ public class MainWindow extends JFrame {
             radioButtons[i].setCursor(new Cursor(Cursor.HAND_CURSOR));
 
             JPanel optionPanel = new JPanel(new BorderLayout());
-            optionPanel.setOpaque(false);
+            optionPanel.setBackground(Color.WHITE);
             optionPanel.setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createLineBorder(new Color(189, 195, 199), 1),
+                    BorderFactory.createLineBorder(new Color(226, 232, 240), 1),
                     new EmptyBorder(12, 12, 12, 12)));
             optionPanel.add(radioButtons[i], BorderLayout.CENTER);
 
@@ -104,13 +91,12 @@ public class MainWindow extends JFrame {
 
         mainPanel.add(questionsPanel, BorderLayout.CENTER);
 
-        // Button panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
         buttonPanel.setOpaque(false);
 
         nextButton = new JButton("Next Question");
         nextButton.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        nextButton.setBackground(new Color(33, 150, 243));
+        nextButton.setBackground(new Color(37, 99, 235));
         nextButton.setForeground(Color.WHITE);
         nextButton.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
         nextButton.setFocusPainted(false);
@@ -121,7 +107,7 @@ public class MainWindow extends JFrame {
 
         finishButton = new JButton("Finish Quiz");
         finishButton.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        finishButton.setBackground(new Color(76, 175, 80));
+        finishButton.setBackground(new Color(14, 116, 144));
         finishButton.setForeground(Color.WHITE);
         finishButton.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
         finishButton.setFocusPainted(false);
@@ -139,7 +125,7 @@ public class MainWindow extends JFrame {
 
         JButton quitButton = new JButton("Quit");
         quitButton.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        quitButton.setBackground(new Color(244, 67, 54));
+        quitButton.setBackground(new Color(100, 116, 139));
         quitButton.setForeground(Color.WHITE);
         quitButton.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
         quitButton.setFocusPainted(false);
@@ -176,7 +162,7 @@ public class MainWindow extends JFrame {
         }
 
         if (currentIndex + 1 < questions.size()) {
-            new MainWindow(questions, currentIndex + 1, playerName);
+            new MainWindow(questions, currentIndex + 1, playerName, studentId);
             dispose();
         }
     }
@@ -193,7 +179,7 @@ public class MainWindow extends JFrame {
             correct++;
         }
 
-        new ResultsWindow(questions, correct, playerName);
+        new ResultsWindow(questions, correct, playerName, studentId);
         correct = 0;
         dispose();
     }
