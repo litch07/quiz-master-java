@@ -3,6 +3,10 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class Dashboard extends JFrame {
@@ -25,17 +29,18 @@ public class Dashboard extends JFrame {
 
         mainPanel = new JPanel();
         mainPanel.setBackground(new Color(245, 247, 250));
-        mainPanel.setLayout(new BorderLayout(20, 20));
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBorder(new EmptyBorder(30, 30, 30, 30));
 
         JPanel headerPanel = new JPanel();
         headerPanel.setOpaque(false);
         headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
+        headerPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel titleLabel = new JLabel("Quiz Application");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 34));
         titleLabel.setForeground(new Color(30, 41, 59));
-        titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         headerPanel.add(titleLabel);
 
         headerPanel.add(Box.createVerticalStrut(6));
@@ -43,14 +48,16 @@ public class Dashboard extends JFrame {
         JLabel countLabel = new JLabel("Questions in Bank: " + questions.size());
         countLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         countLabel.setForeground(new Color(51, 65, 85));
-        countLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        countLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         headerPanel.add(countLabel);
 
-        mainPanel.add(headerPanel, BorderLayout.NORTH);
+        mainPanel.add(headerPanel);
+        mainPanel.add(Box.createVerticalStrut(30));
 
         JPanel actionsPanel = new JPanel();
         actionsPanel.setOpaque(false);
         actionsPanel.setLayout(new BoxLayout(actionsPanel, BoxLayout.Y_AXIS));
+        actionsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JButton startButton = createStyledButton("Start Quiz", new Color(37, 99, 235));
         startButton.addActionListener(e -> {
@@ -81,6 +88,16 @@ public class Dashboard extends JFrame {
         actionsPanel.add(statsButton);
         actionsPanel.add(Box.createVerticalStrut(12));
 
+        JButton recentButton = createStyledButton("Recent Results", new Color(59, 130, 246));
+        recentButton.addActionListener(e -> showRecentResults());
+        actionsPanel.add(recentButton);
+        actionsPanel.add(Box.createVerticalStrut(12));
+
+        JButton leaderboardButton = createStyledButton("Leaderboard", new Color(16, 185, 129));
+        leaderboardButton.addActionListener(e -> showLeaderboard());
+        actionsPanel.add(leaderboardButton);
+        actionsPanel.add(Box.createVerticalStrut(12));
+
         JButton settingsButton = createStyledButton("Settings", new Color(71, 85, 105));
         settingsButton.addActionListener(e -> openSettings());
         actionsPanel.add(settingsButton);
@@ -95,7 +112,7 @@ public class Dashboard extends JFrame {
         exitButton.addActionListener(e -> System.exit(0));
         actionsPanel.add(exitButton);
 
-        mainPanel.add(actionsPanel, BorderLayout.CENTER);
+        mainPanel.add(actionsPanel);
 
         add(mainPanel);
         setVisible(true);
@@ -110,7 +127,7 @@ public class Dashboard extends JFrame {
         button.setFocusPainted(false);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
         button.setMaximumSize(new Dimension(260, 44));
-        button.setAlignmentX(Component.LEFT_ALIGNMENT);
+        button.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         button.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
@@ -149,6 +166,63 @@ public class Dashboard extends JFrame {
                 String.format("Average Score: %.1f%%", average);
 
         JOptionPane.showMessageDialog(this, message, "Statistics", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void showRecentResults() {
+        List<String> results = readRecentResults(20);
+        showListDialog("Recent Results", results,
+                "No results yet. Complete a quiz to see results.");
+    }
+
+    private void showLeaderboard() {
+        List<String> leaderboard = buildLeaderboard(20);
+        showListDialog("Leaderboard", leaderboard,
+                "No scores yet. Complete a quiz to populate the leaderboard.");
+    }
+
+    private void showListDialog(String title, List<String> lines, String emptyMessage) {
+        JDialog dialog = new JDialog(this, title, true);
+        dialog.setSize(520, 420);
+        dialog.setLocationRelativeTo(this);
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BorderLayout(10, 10));
+        panel.setBorder(new EmptyBorder(12, 12, 12, 12));
+
+        if (lines.isEmpty()) {
+            JLabel label = new JLabel(emptyMessage);
+            label.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+            label.setForeground(new Color(100, 116, 139));
+            panel.add(label, BorderLayout.CENTER);
+        } else {
+            DefaultListModel<String> model = new DefaultListModel<>();
+            for (String line : lines) {
+                model.addElement(line);
+            }
+            JList<String> list = new JList<>(model);
+            list.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+            list.setBackground(new Color(248, 250, 252));
+            list.setBorder(new EmptyBorder(8, 8, 8, 8));
+
+            JScrollPane scrollPane = new JScrollPane(list);
+            panel.add(scrollPane, BorderLayout.CENTER);
+        }
+
+        JButton closeButton = new JButton("Close");
+        closeButton.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        closeButton.setBackground(new Color(100, 116, 139));
+        closeButton.setForeground(Color.WHITE);
+        closeButton.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
+        closeButton.setFocusPainted(false);
+        closeButton.addActionListener(e -> dialog.dispose());
+
+        JPanel footer = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        footer.setOpaque(false);
+        footer.add(closeButton);
+        panel.add(footer, BorderLayout.SOUTH);
+
+        dialog.add(panel);
+        dialog.setVisible(true);
     }
 
     private boolean verifyPassword() {
@@ -291,6 +365,83 @@ public class Dashboard extends JFrame {
         }
     }
 
+    private List<String> readRecentResults(int limit) {
+        File file = new File(RESULTS_FILE);
+        ArrayList<String> lines = new ArrayList<>();
+        if (!file.exists()) {
+            return lines;
+        }
+
+        try (Scanner sc = new Scanner(file)) {
+            while (sc.hasNextLine()) {
+                lines.add(sc.nextLine());
+            }
+        } catch (Exception e) {
+            return lines;
+        }
+
+        int start = Math.max(0, lines.size() - limit);
+        return lines.subList(start, lines.size());
+    }
+
+    private List<String> buildLeaderboard(int limit) {
+        File file = new File(RESULTS_FILE);
+        Map<String, LeaderEntry> bestByStudent = new HashMap<>();
+
+        if (file.exists()) {
+            try (Scanner sc = new Scanner(file)) {
+                while (sc.hasNextLine()) {
+                    String line = sc.nextLine();
+                    String[] parts = line.split("\\|");
+                    if (parts.length < 4) {
+                        continue;
+                    }
+                    String nameId = parts[1].trim();
+                    String percentPart = parts[3].trim();
+                    double percent;
+                    try {
+                        percent = Double.parseDouble(percentPart.replace("%", ""));
+                    } catch (NumberFormatException e) {
+                        continue;
+                    }
+
+                    String name = nameId;
+                    String id = "";
+                    int open = nameId.lastIndexOf('(');
+                    int close = nameId.lastIndexOf(')');
+                    if (open >= 0 && close > open) {
+                        name = nameId.substring(0, open).trim();
+                        id = nameId.substring(open + 1, close).trim();
+                    }
+
+                    String key = id.isEmpty() ? name : id;
+                    LeaderEntry existing = bestByStudent.get(key);
+                    if (existing == null || percent > existing.percent) {
+                        bestByStudent.put(key, new LeaderEntry(name, id, percent));
+                    }
+                }
+            } catch (Exception e) {
+                return new ArrayList<>();
+            }
+        }
+
+        ArrayList<LeaderEntry> entries = new ArrayList<>(bestByStudent.values());
+        entries.sort(Comparator.comparingDouble((LeaderEntry e) -> e.percent).reversed());
+
+        List<String> lines = new ArrayList<>();
+        int count = Math.min(limit, entries.size());
+        for (int i = 0; i < count; i++) {
+            LeaderEntry entry = entries.get(i);
+            String label = String.format("%d. %s (%s) - %.1f%%", i + 1,
+                    entry.name,
+                    entry.id.isEmpty() ? "N/A" : entry.id,
+                    entry.percent);
+            lines.add(label);
+        }
+
+        return lines;
+    }
+
     private Stats loadStats() {
         File file = new File(STATS_FILE);
         if (!file.exists()) {
@@ -377,5 +528,17 @@ public class Dashboard extends JFrame {
         String lastId;
         int lastCorrect;
         int lastTotal;
+    }
+
+    private static class LeaderEntry {
+        String name;
+        String id;
+        double percent;
+
+        LeaderEntry(String name, String id, double percent) {
+            this.name = name;
+            this.id = id;
+            this.percent = percent;
+        }
     }
 }
