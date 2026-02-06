@@ -15,7 +15,8 @@ public class Dashboard extends JFrame {
     private static final String SETTINGS_FILE = "settings.txt";
     private static final String ATTEMPTS_FILE = "attempts.txt";
 
-    private ArrayList<Questions> questions;`n
+    private ArrayList<Questions> questions;
+
     public Dashboard(ArrayList<Questions> questions) {
         this.questions = questions;
 
@@ -581,4 +582,5 @@ public class Dashboard extends JFrame {
         }
     }
 }
+
 
