@@ -83,15 +83,21 @@ public class StartQuiz extends JFrame {
 
             Settings settings = loadSettings();
             int maxTrials = settings.maxTrials;
-            if (maxTrials > 0) {
-                int attempts = getAttempts(identity.studentId);
-                if (attempts >= maxTrials) {
-                    JOptionPane.showMessageDialog(this,
-                            "No attempts remaining for this student ID.\nPlease contact your teacher.",
-                            "Attempts Limit Reached", JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
+            if (maxTrials == 0) {
+                JOptionPane.showMessageDialog(this,
+                        "No trials are allowed for this quiz.\nPlease contact your teacher.",
+                        "Trials Disabled", JOptionPane.WARNING_MESSAGE);
+                return;
             }
+
+            int attempts = getAttempts(identity.studentId);
+            if (attempts >= maxTrials) {
+                JOptionPane.showMessageDialog(this,
+                        "No attempts remaining for this student ID.\nPlease contact your teacher.",
+                        "Attempts Limit Reached", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
 
             new MainWindow(questions, 0, identity.name, identity.studentId);
             dispose();
@@ -153,7 +159,7 @@ public class StartQuiz extends JFrame {
         File file = new File(SETTINGS_FILE);
         Settings settings = new Settings();
         settings.password = "admin";
-        settings.maxTrials = 0;
+        settings.maxTrials = 1;
 
         if (!file.exists()) {
             return settings;
@@ -209,3 +215,4 @@ public class StartQuiz extends JFrame {
         }
     }
 }
+

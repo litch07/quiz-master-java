@@ -3,13 +3,17 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class Dashboard extends JFrame {
     private static final String STATS_FILE = "stats.txt";
     private static final String RESULTS_FILE = "results.log";
     private static final String SETTINGS_FILE = "settings.txt";
+    private static final String ATTEMPTS_FILE = "attempts.txt";
 
     private ArrayList<Questions> questions;
     private JPanel mainPanel;
@@ -19,7 +23,7 @@ public class Dashboard extends JFrame {
 
         setTitle("Quiz Application - Dashboard");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(700, 520);
+        setSize(860, 560);
         setLocationRelativeTo(null);
         setResizable(false);
 
@@ -48,7 +52,7 @@ public class Dashboard extends JFrame {
 
         mainPanel.add(headerPanel, BorderLayout.NORTH);
 
-        JPanel contentPanel = new JPanel(new GridLayout(1, 2, 20, 0));
+        JPanel contentPanel = new JPanel(new GridLayout(1, 3, 20, 0));
         contentPanel.setOpaque(false);
 
         JPanel actionsPanel = new JPanel();
@@ -89,6 +93,11 @@ public class Dashboard extends JFrame {
         actionsPanel.add(settingsButton);
         actionsPanel.add(Box.createVerticalStrut(12));
 
+        JButton resetAttemptsButton = createStyledButton("Reset Attempts", new Color(148, 163, 184));
+        resetAttemptsButton.addActionListener(e -> resetAttempts());
+        actionsPanel.add(resetAttemptsButton);
+        actionsPanel.add(Box.createVerticalStrut(12));
+
         JButton exitButton = createStyledButton("Exit", new Color(100, 116, 139));
         exitButton.addActionListener(e -> System.exit(0));
         actionsPanel.add(exitButton);
@@ -121,6 +130,34 @@ public class Dashboard extends JFrame {
         }
 
         contentPanel.add(resultsPanel);
+
+        JPanel leaderboardPanel = new JPanel();
+        leaderboardPanel.setOpaque(false);
+        leaderboardPanel.setLayout(new BoxLayout(leaderboardPanel, BoxLayout.Y_AXIS));
+        leaderboardPanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(new Color(203, 213, 225)),
+                "Leaderboard"));
+
+        List<String> leaderboard = buildLeaderboard(5);
+        if (leaderboard.isEmpty()) {
+            JLabel emptyLabel = new JLabel("No scores yet. Complete a quiz to populate the leaderboard.");
+            emptyLabel.setFont(new Font("Segoe UI", Font.ITALIC, 13));
+            emptyLabel.setForeground(new Color(100, 116, 139));
+            emptyLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+            leaderboardPanel.add(emptyLabel);
+        } else {
+            for (String line : leaderboard) {
+                JLabel lineLabel = new JLabel(line);
+                lineLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+                lineLabel.setForeground(new Color(51, 65, 85));
+                lineLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+                leaderboardPanel.add(lineLabel);
+                leaderboardPanel.add(Box.createVerticalStrut(8));
+            }
+        }
+
+        contentPanel.add(leaderboardPanel);
+
         mainPanel.add(contentPanel, BorderLayout.CENTER);
 
         add(mainPanel);
@@ -205,13 +242,13 @@ public class Dashboard extends JFrame {
 
         Settings settings = loadSettings();
 
-        JTextField maxTrialsField = new JTextField(settings.maxTrials == 0 ? "0" : String.valueOf(settings.maxTrials));
+        JTextField maxTrialsField = new JTextField(String.valueOf(settings.maxTrials));
         JPasswordField currentPassword = new JPasswordField();
         JPasswordField newPassword = new JPasswordField();
         JPasswordField confirmPassword = new JPasswordField();
 
         JPanel panel = new JPanel(new GridLayout(0, 1, 6, 6));
-        panel.add(new JLabel("Max trials per student (0 = unlimited):"));
+        panel.add(new JLabel("Max trials per student (0 = no trials):"));
         panel.add(maxTrialsField);
         panel.add(new JLabel("Current password (required to change password):"));
         panel.add(currentPassword);
@@ -262,11 +299,29 @@ public class Dashboard extends JFrame {
                 "Settings", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    private void resetAttempts() {
+        if (!verifyPassword()) {
+            return;
+        }
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Reset all student attempts? This cannot be undone.",
+                "Confirm Reset", JOptionPane.YES_NO_OPTION);
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+        File file = new File(ATTEMPTS_FILE);
+        if (file.exists()) {
+            file.delete();
+        }
+        JOptionPane.showMessageDialog(this, "Attempts reset successfully.",
+                "Reset Attempts", JOptionPane.INFORMATION_MESSAGE);
+    }
+
     private Settings loadSettings() {
         File file = new File(SETTINGS_FILE);
         Settings settings = new Settings();
         settings.password = "admin";
-        settings.maxTrials = 0;
+        settings.maxTrials = 1;
 
         if (!file.exists()) {
             return settings;
@@ -277,8 +332,7 @@ public class Dashboard extends JFrame {
                 settings.password = sc.nextLine().trim();
             }
             if (sc.hasNextLine()) {
-                String value = sc.nextLine().trim();
-                settings.maxTrials = Integer.parseInt(value);
+                settings.maxTrials = Integer.parseInt(sc.nextLine().trim());
             }
         } catch (Exception e) {
             return settings;
@@ -314,6 +368,64 @@ public class Dashboard extends JFrame {
 
         int start = Math.max(0, lines.size() - limit);
         return lines.subList(start, lines.size());
+    }
+
+    private List<String> buildLeaderboard(int limit) {
+        File file = new File(RESULTS_FILE);
+        Map<String, LeaderEntry> bestByStudent = new HashMap<>();
+
+        if (file.exists()) {
+            try (Scanner sc = new Scanner(file)) {
+                while (sc.hasNextLine()) {
+                    String line = sc.nextLine();
+                    String[] parts = line.split("\\|");
+                    if (parts.length < 4) {
+                        continue;
+                    }
+                    String nameId = parts[1].trim();
+                    String percentPart = parts[3].trim();
+                    double percent;
+                    try {
+                        percent = Double.parseDouble(percentPart.replace("%", ""));
+                    } catch (NumberFormatException e) {
+                        continue;
+                    }
+
+                    String name = nameId;
+                    String id = "";
+                    int open = nameId.lastIndexOf('(');
+                    int close = nameId.lastIndexOf(')');
+                    if (open >= 0 && close > open) {
+                        name = nameId.substring(0, open).trim();
+                        id = nameId.substring(open + 1, close).trim();
+                    }
+
+                    String key = id.isEmpty() ? name : id;
+                    LeaderEntry existing = bestByStudent.get(key);
+                    if (existing == null || percent > existing.percent) {
+                        bestByStudent.put(key, new LeaderEntry(name, id, percent));
+                    }
+                }
+            } catch (Exception e) {
+                return new ArrayList<>();
+            }
+        }
+
+        ArrayList<LeaderEntry> entries = new ArrayList<>(bestByStudent.values());
+        entries.sort(Comparator.comparingDouble((LeaderEntry e) -> e.percent).reversed());
+
+        List<String> lines = new ArrayList<>();
+        int count = Math.min(limit, entries.size());
+        for (int i = 0; i < count; i++) {
+            LeaderEntry entry = entries.get(i);
+            String label = String.format("%d. %s (%s) - %.1f%%", i + 1,
+                    entry.name,
+                    entry.id.isEmpty() ? "N/A" : entry.id,
+                    entry.percent);
+            lines.add(label);
+        }
+
+        return lines;
     }
 
     private Stats loadStats() {
@@ -402,5 +514,17 @@ public class Dashboard extends JFrame {
         String lastId;
         int lastCorrect;
         int lastTotal;
+    }
+
+    private static class LeaderEntry {
+        String name;
+        String id;
+        double percent;
+
+        LeaderEntry(String name, String id, double percent) {
+            this.name = name;
+            this.id = id;
+            this.percent = percent;
+        }
     }
 }
