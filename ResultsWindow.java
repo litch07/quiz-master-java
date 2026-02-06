@@ -302,7 +302,7 @@ public class ResultsWindow extends JFrame {
                 lines.add(sc.nextLine());
             }
 
-            if (lines.size() >= 11) {
+            if (lines.size() >= 6) {
                 Stats stats = new Stats();
                 stats.totalQuizzes = Integer.parseInt(lines.get(0).trim());
                 stats.totalCorrect = Integer.parseInt(lines.get(1).trim());
@@ -310,11 +310,6 @@ public class ResultsWindow extends JFrame {
                 stats.bestPercent = Double.parseDouble(lines.get(3).trim());
                 stats.bestName = lines.get(4).trim();
                 stats.bestId = lines.get(5).trim();
-                stats.lastPercent = Double.parseDouble(lines.get(6).trim());
-                stats.lastName = lines.get(7).trim();
-                stats.lastId = lines.get(8).trim();
-                stats.lastCorrect = Integer.parseInt(lines.get(9).trim());
-                stats.lastTotal = Integer.parseInt(lines.get(10).trim());
                 return stats;
             }
         } catch (Exception e) {
@@ -331,16 +326,5 @@ public class ResultsWindow extends JFrame {
         double bestPercent;
         String bestName;
         String bestId;
-        double lastPercent;
-        String lastName;
-        String lastId;
-        int lastCorrect;
-        int lastTotal;
     }
 }
-
-
-
-
-
-
