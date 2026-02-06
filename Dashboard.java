@@ -142,6 +142,8 @@ public class Dashboard extends JFrame {
         panel.setBorder(new EmptyBorder(12, 12, 12, 12));
 
         JTabbedPane tabs = new JTabbedPane();
+        tabs.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        tabs.setBackground(new Color(248, 250, 252));
         tabs.addTab("Statistics", buildStatsPanel());
         tabs.addTab("Recent Results", buildRecentResultsPanel());
         tabs.addTab("Leaderboard", buildLeaderboardPanel());
@@ -166,6 +168,7 @@ public class Dashboard extends JFrame {
 
     private JPanel buildStatsPanel() {
         JPanel panel = new JPanel();
+        panel.setBackground(new Color(248, 250, 252));
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
@@ -209,6 +212,7 @@ public class Dashboard extends JFrame {
 
     private JPanel buildListPanel(List<String> lines, String emptyMessage) {
         JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(new Color(248, 250, 252));
         panel.setBorder(new EmptyBorder(8, 8, 8, 8));
 
         if (lines.isEmpty()) {
@@ -227,6 +231,8 @@ public class Dashboard extends JFrame {
         list.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         list.setBackground(new Color(248, 250, 252));
         list.setBorder(new EmptyBorder(8, 8, 8, 8));
+        list.setSelectionBackground(new Color(226, 232, 240));
+        list.setSelectionForeground(new Color(30, 41, 59));
 
         JScrollPane scrollPane = new JScrollPane(list);
         panel.add(scrollPane, BorderLayout.CENTER);
@@ -569,3 +575,4 @@ public class Dashboard extends JFrame {
         }
     }
 }
+
