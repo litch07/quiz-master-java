@@ -15,10 +15,8 @@ public class Dashboard extends JFrame {
     private static final String SETTINGS_FILE = "settings.txt";
     private static final String ATTEMPTS_FILE = "attempts.txt";
 
-    private ArrayList<Questions> questions;
-
     public Dashboard(ArrayList<Questions> questions) {
-        this.questions = questions;
+        final ArrayList<Questions> quizQuestions = questions;
 
         setTitle("Quiz Application - Dashboard");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -44,7 +42,7 @@ public class Dashboard extends JFrame {
 
         headerPanel.add(Box.createVerticalStrut(6));
 
-        JLabel countLabel = new JLabel("Questions in Bank: " + questions.size());
+        JLabel countLabel = new JLabel("Questions in Bank: " + quizQuestions.size());
         countLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         countLabel.setForeground(new Color(51, 65, 85));
         countLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -60,11 +58,11 @@ public class Dashboard extends JFrame {
 
         JButton startButton = createStyledButton("Start Quiz", new Color(37, 99, 235));
         startButton.addActionListener(e -> {
-            if (questions.isEmpty()) {
+            if (quizQuestions.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "No questions available! Please add questions first.",
                         "Error", JOptionPane.WARNING_MESSAGE);
             } else {
-                new StartQuiz(questions);
+                new StartQuiz(quizQuestions);
                 dispose();
             }
         });
@@ -76,7 +74,7 @@ public class Dashboard extends JFrame {
             if (!verifyPassword()) {
                 return;
             }
-            new QuestionManager(this, questions);
+            new QuestionManager(this, quizQuestions);
             dispose();
         });
         actionsPanel.add(manageButton);
@@ -582,5 +580,3 @@ public class Dashboard extends JFrame {
         }
     }
 }
-
-
