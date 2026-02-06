@@ -93,9 +93,9 @@ public class Dashboard extends JFrame {
         actionsPanel.add(settingsButton);
         actionsPanel.add(Box.createVerticalStrut(10));
 
-        JButton resetAttemptsButton = createStyledButton("Reset Attempts", new Color(148, 163, 184));
-        resetAttemptsButton.addActionListener(e -> resetAttempts());
-        actionsPanel.add(resetAttemptsButton);
+        JButton resetDataButton = createStyledButton("Reset Data", new Color(148, 163, 184));
+        resetDataButton.addActionListener(e -> resetData());
+        actionsPanel.add(resetDataButton);
         actionsPanel.add(Box.createVerticalStrut(10));
 
         JButton exitButton = createStyledButton("Exit", new Color(100, 116, 139));
@@ -343,25 +343,33 @@ public class Dashboard extends JFrame {
                 "Settings", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    private void resetAttempts() {
+    private void resetData() {
         if (!verifyPassword()) {
             return;
         }
         int confirm = JOptionPane.showConfirmDialog(this,
-                "Reset all student attempts? This cannot be undone.",
+                "Reset all results, statistics, and attempts? This cannot be undone.",
                 "Confirm Reset", JOptionPane.YES_NO_OPTION);
         if (confirm != JOptionPane.YES_OPTION) {
             return;
         }
-        File file = new File(ATTEMPTS_FILE);
-        if (file.exists()) {
-            file.delete();
-        }
+
+        deleteFileIfExists(new File(ATTEMPTS_FILE));
+        deleteFileIfExists(new File(RESULTS_FILE));
+        deleteFileIfExists(new File(STATS_FILE));
+
         Settings settings = loadSettings();
         settings.maxTrials = 1;
         saveSettings(settings);
-        JOptionPane.showMessageDialog(this, "Attempts reset. Max trials set to 1.",
-                "Reset Attempts", JOptionPane.INFORMATION_MESSAGE);
+
+        JOptionPane.showMessageDialog(this, "Data reset complete. Max trials set to 1.",
+                "Reset Data", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void deleteFileIfExists(File file) {
+        if (file.exists()) {
+            file.delete();
+        }
     }
 
     private Settings loadSettings() {
