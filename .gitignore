@@ -12,6 +12,7 @@ build/
 # Release artifacts
 *.zip
 dist/
+dist-win/
 
 # App runtime data
 attempts.txt
