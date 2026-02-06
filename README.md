@@ -26,7 +26,7 @@ A professional quiz application built with **Java Swing** for the Object-Oriente
 
 ## Prerequisites
 
-- Java Development Kit (JDK) 8+
+- Java Development Kit (JDK) 8+ (only needed to build from source)
 - Git (optional)
 
 ## Getting Started
@@ -43,10 +43,10 @@ javac *.java
 java Main
 ```
 
-## Portable Build (Release Asset)
+## Windows Portable Build (Release Asset)
 
-If you download the release ZIP, it includes `QuizMaster.jar`, `questions.txt`, and launcher scripts.
-Run `run.bat` on Windows or `run.sh` on macOS/Linux. Java 8+ is required.
+Download the Windows ZIP to run without installing Java. It includes a bundled runtime, the app JAR, and `questions.txt`.
+Just extract and run `run.bat`.
 
 ## Usage Notes
 
