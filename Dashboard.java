@@ -15,9 +15,7 @@ public class Dashboard extends JFrame {
     private static final String SETTINGS_FILE = "settings.txt";
     private static final String ATTEMPTS_FILE = "attempts.txt";
 
-    private ArrayList<Questions> questions;
-    private JPanel mainPanel;
-
+    private ArrayList<Questions> questions;`n
     public Dashboard(ArrayList<Questions> questions) {
         this.questions = questions;
 
@@ -27,7 +25,7 @@ public class Dashboard extends JFrame {
         setLocationRelativeTo(null);
         setResizable(false);
 
-        mainPanel = new JPanel();
+        JPanel mainPanel = new JPanel();
         mainPanel.setBackground(new Color(245, 247, 250));
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBorder(new EmptyBorder(30, 30, 30, 30));
@@ -583,3 +581,4 @@ public class Dashboard extends JFrame {
         }
     }
 }
+
